@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "ES6",                     // Modern JS features
+    "module": "commonjs",                // Node.js modules
+    "rootDir": "./src",                  // Source folder
+    "outDir": "./dist",                  // Compiled JS folder
+    "strict": true,                      // TypeScript strict mode
+    "esModuleInterop": true,             // For default imports
+    "skipLibCheck": true,                // Skip type checks on libs
+    "forceConsistentCasingInFileNames": true,
+    "sourceMap": true,                   // Debugging support
+    "types": ["node"]                    // Node types
+  },
+  "exclude": ["node_modules"]
+}
