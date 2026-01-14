@@ -1,0 +1,75 @@
+import { Request, Response } from 'express';
+import { container } from '../container';
+import { AuthService } from '../services/auth.service';
+import { StatusCodes } from '../constants/statusCodes';
+import { Messages } from '../constants/messages';
+
+
+
+const authService = container.get<AuthService>(AuthService);
+
+export const register = async (req: Request, res: Response) => {
+  try {
+    const { name, email, password, role } = req.body;
+
+    if (!name || !email || !password) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: 'Name, email and password are required',
+      });
+    }
+
+    const result = await authService.register(name, email, password, role);
+
+    res.status(StatusCodes.CREATED).json({
+      success: true,
+      message: Messages.REGISTER_SUCCESS,
+      token: result.token,
+      user: {
+        id: result.user._id,
+        name: result.user.name,
+        email: result.user.email,
+        role: result.user.role,
+      },
+    });
+  } catch (error: any) {
+    console.error(error);
+    res.status(StatusCodes.BAD_REQUEST).json({
+      success: false,
+      message: error.message || Messages.SERVER_ERROR,
+    });
+  }
+};
+
+export const login = async (req: Request, res: Response) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: 'Email and password are required',
+      });
+    }
+
+    const result = await authService.login(email, password);
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: Messages.LOGIN_SUCCESS,
+      token: result.token,
+      user: {
+        id: result.user._id,
+        name: result.user.name,
+        email: result.user.email,
+        role: result.user.role,
+      },
+    });
+  } catch (error: any) {
+    console.error(error);
+    res.status(StatusCodes.UNAUTHORIZED).json({
+      success: false,
+      message: error.message || Messages.INVALID_CREDENTIALS,
+    });
+  }
+};

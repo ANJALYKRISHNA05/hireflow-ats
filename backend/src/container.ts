@@ -1,11 +1,12 @@
-import {Container} from 'inversify';
+import { Container } from 'inversify';
 import 'reflect-metadata';
 import { IUserRepository } from './interfaces/repositories/user.repository.interface';
 import { UserRepository } from './repositories/user.repository';
+import { AuthService } from './services/auth.service'; // We'll create this next
 
+const container = new Container();
 
-const container=new Container();
 container.bind<IUserRepository>('IUserRepository').to(UserRepository);
+container.bind<AuthService>(AuthService).toSelf();
 
-
-export {container}
+export { container };

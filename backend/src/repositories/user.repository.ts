@@ -5,7 +5,7 @@ import {IUser, User} from '../models/user.model'
 @injectable()
 export class UserRepository implements IUserRepository{
   async findByEmail(email:string):Promise<any|null>{
-    return await User.findOne({email})
+    return await User.findOne({email}).select('+password')
   }
 
   async findById(id:string):Promise<any|null>{

@@ -1,15 +1,17 @@
 {
   "compilerOptions": {
-    "target": "ES6",                     // Modern JS features
-    "module": "commonjs",                // Node.js modules
-    "rootDir": "./src",                  // Source folder
-    "outDir": "./dist",                  // Compiled JS folder
-    "strict": true,                      // TypeScript strict mode
-    "esModuleInterop": true,             // For default imports
-    "skipLibCheck": true,                // Skip type checks on libs
+    "target": "ES6",                     
+    "module": "commonjs",              
+    "rootDir": "./src",                  
+    "outDir": "./dist",                 
+    "strict": true,                      
+    "esModuleInterop": true,             
+    "skipLibCheck": true,                
     "forceConsistentCasingInFileNames": true,
-    "sourceMap": true,                   // Debugging support
-    "types": ["node"]                    // Node types
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "sourceMap": true,                   
+    "types": ["node"]                   
   },
   "exclude": ["node_modules"]
 }
