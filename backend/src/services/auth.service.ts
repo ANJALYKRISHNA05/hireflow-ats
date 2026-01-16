@@ -27,7 +27,7 @@ export class AuthService{
                 role:role||UserRole.CANDIDATE,
 
             })
-            const token=generateAccessToken({id:user._id.toString(),role:user.role});
+            const token=generateAccessToken({userId:user._id.toString(),role:user.role});
             return {user,token}
         }
 
@@ -41,7 +41,7 @@ export class AuthService{
             if(!isMatch){
                 throw new Error(Messages.INVALID_CREDENTIALS)
             }
-            const token=generateAccessToken({id:user._id.toString(),role:user.role})
+            const token=generateAccessToken({userId:user._id.toString(),role:user.role})
             return {user,token}
         }
 

@@ -2,7 +2,7 @@ import { Container } from 'inversify';
 import 'reflect-metadata';
 import { IUserRepository } from './interfaces/repositories/user.repository.interface';
 import { UserRepository } from './repositories/user.repository';
-import { AuthService } from './services/auth.service'; // We'll create this next
+import { AuthService } from './services/auth.service'; 
 
 const container = new Container();
 

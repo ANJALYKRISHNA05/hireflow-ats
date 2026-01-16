@@ -8,6 +8,8 @@ export const getCurrentUser=async(req:Request,res:Response)=>{
 
         const userRepo=container.get<IUserRepository>('IUserRepository');
         const userId=(req as any).user.id;
+        
+
         const user=await userRepo.findById(userId)
         if(!user){
             return res.status(StatusCodes.NOT_FOUND).json({
