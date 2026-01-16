@@ -73,3 +73,20 @@ export const login = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const logout=async(req:Request,res:Response)=>{
+  try{
+    const userId=(req as any).user.id;
+    await authService.logout(userId);
+    res.status(StatusCodes.OK).json({
+      success:true,
+      message:'Logged out successfully.Refresh token invalidated'
+    })
+  }catch(error:any){
+    console.error('Logout error:', error);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: 'Logout failed'
+    });
+  }
+  }

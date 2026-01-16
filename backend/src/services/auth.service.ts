@@ -5,6 +5,7 @@ import {generateAccessToken} from '../utils/jwt';
 import {StatusCodes} from '../constants/statusCodes'
 import {Messages} from '../constants/messages';
 import {UserRole} from '../types/roles';
+import { RefreshToken } from '../models/refreshToken.model';
 
 @injectable()
 export class AuthService{
@@ -43,6 +44,11 @@ export class AuthService{
             }
             const token=generateAccessToken({userId:user._id.toString(),role:user.role})
             return {user,token}
+        }
+
+        async logout(userId:string){
+            await RefreshToken.deleteMany({user:userId})
+            return {message:'Logged out successfully'}
         }
 
 
