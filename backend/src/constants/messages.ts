@@ -8,6 +8,7 @@ export const Messages = {
   LOGOUT_SUCCESS: "Logged out successfully",
   REFRESH_TOKEN_SUCCESS: "Token refreshed successfully",
   EMAIL_ALREADY_EXISTS:"Email already exists",
+  USER_NOT_FOUND:"User not found",
 
  
   SERVER_ERROR: "Internal server error",
