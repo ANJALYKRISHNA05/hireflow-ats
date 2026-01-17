@@ -3,23 +3,34 @@ import { container } from '../container';
 import { AuthService } from '../services/auth.service';
 import { StatusCodes } from '../constants/statusCodes';
 import { Messages } from '../constants/messages';
+import { plainToClass } from 'class-transformer';
+import { validate } from 'class-validator';
+import { UserRole } from '../types/roles';
 
-
+import { RegisterDto, LoginDto } from '../dtos/auth.dto';
 
 const authService = container.get<AuthService>(AuthService);
 
 export const register = async (req: Request, res: Response) => {
   try {
-    const { name, email, password, role } = req.body;
+    const dto = plainToClass(RegisterDto, req.body);
+    const errors = await validate(dto);
 
-    if (!name || !email || !password) {
+    if (errors.length > 0) {
+      const errorMessages = errors.map(err => err.constraints?.[Object.keys(err.constraints)[0]]);
       return res.status(StatusCodes.BAD_REQUEST).json({
         success: false,
-        message: 'Name, email and password are required',
+        message: 'Validation failed',
+        errors: errorMessages,
       });
     }
 
-    const result = await authService.register(name, email, password, role);
+    const result = await authService.register(
+      dto.name,
+      dto.email,
+      dto.password,
+      dto.role || UserRole.CANDIDATE
+    );
 
     res.status(StatusCodes.CREATED).json({
       success: true,
@@ -43,16 +54,19 @@ export const register = async (req: Request, res: Response) => {
 
 export const login = async (req: Request, res: Response) => {
   try {
-    const { email, password } = req.body;
+    const dto = plainToClass(LoginDto, req.body);
+    const errors = await validate(dto);
 
-    if (!email || !password) {
+    if (errors.length > 0) {
+      const errorMessages = errors.map(err => err.constraints?.[Object.keys(err.constraints)[0]]);
       return res.status(StatusCodes.BAD_REQUEST).json({
         success: false,
-        message: 'Email and password are required',
+        message: 'Validation failed',
+        errors: errorMessages,
       });
     }
 
-    const result = await authService.login(email, password);
+    const result = await authService.login(dto.email, dto.password);
 
     res.status(StatusCodes.OK).json({
       success: true,
@@ -73,6 +87,7 @@ export const login = async (req: Request, res: Response) => {
     });
   }
 };
+
 
 export const logout=async(req:Request,res:Response)=>{
   try{

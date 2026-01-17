@@ -4,11 +4,16 @@ import { IUserRepository } from './interfaces/repositories/user.repository.inter
 import { UserRepository } from './repositories/user.repository';
 import { AuthService } from './services/auth.service'; 
 import { UserService } from './services/user.service'
+import { IJobRepository } from './interfaces/repositories/job.repository.interface';
+import { JobRepository } from './repositories/job.repository';
+import { JobService } from './services/job.service';
 
 const container = new Container();
 
 container.bind<IUserRepository>('IUserRepository').to(UserRepository);
 container.bind<AuthService>(AuthService).toSelf();
 container.bind<UserService>('UserService').to(UserService)
+container.bind<IJobRepository>('IJobRepository').to(JobRepository);
+container.bind<JobService>(JobService).toSelf();
 
 export { container };
