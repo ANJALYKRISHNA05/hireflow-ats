@@ -2,6 +2,7 @@ import {injectable,inject} from 'inversify'
 import { IUserRepository } from '../interfaces/repositories/user.repository.interface'
 import bcrypt from 'bcryptjs'
 import {generateAccessToken} from '../utils/jwt';
+import { generateRefreshToken } from '../utils/jwt';
 import {StatusCodes} from '../constants/statusCodes'
 import {Messages} from '../constants/messages';
 import {UserRole} from '../types/roles';
