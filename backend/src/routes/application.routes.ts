@@ -1,3 +1,4 @@
+
 import { Router } from 'express';
 import {
   applyToJob,
@@ -11,6 +12,7 @@ import { UserRole } from '../types/roles';
 import { uploadFields } from '../middlewares/upload.middleware';
 
 const router = Router();
+
 
 
 router.post('/', authenticate, authorize(UserRole.CANDIDATE), uploadFields, applyToJob);
