@@ -6,7 +6,6 @@ import { Messages } from '../constants/messages';
 import { plainToClass } from 'class-transformer';
 import { validate } from 'class-validator';
 import { UserRole } from '../types/roles';
-
 import { RegisterDto, LoginDto } from '../dtos/auth.dto';
 
 const authService = container.get<AuthService>(AuthService);
@@ -35,7 +34,7 @@ export const register = async (req: Request, res: Response) => {
     res.status(StatusCodes.CREATED).json({
       success: true,
       message: Messages.REGISTER_SUCCESS,
-      token: result.token,
+      accessToken: result.token,
       user: {
         id: result.user._id,
         name: result.user.name,
@@ -65,13 +64,13 @@ export const login = async (req: Request, res: Response) => {
         errors: errorMessages,
       });
     }
-
-    const result = await authService.login(dto.email, dto.password);
+const result = await authService.login(dto.email, dto.password);
 
     res.status(StatusCodes.OK).json({
       success: true,
       message: Messages.LOGIN_SUCCESS,
-      token: result.token,
+      accessToken: result.accessToken,
+      refreshToken: result.refreshToken,
       user: {
         id: result.user._id,
         name: result.user.name,
@@ -105,3 +104,30 @@ export const logout=async(req:Request,res:Response)=>{
     });
   }
   }
+
+
+  export const refresh = async (req: Request, res: Response) => {
+  try {
+    const { refreshToken } = req.body;
+
+    if (!refreshToken) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: 'Refresh token required',
+      });
+    }
+
+    const result = await authService.refresh(refreshToken);
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      accessToken: result.accessToken,
+      refreshToken: result.refreshToken,
+    });
+  } catch (error: any) {
+    res.status(StatusCodes.UNAUTHORIZED).json({
+      success: false,
+      message: error.message || 'Invalid refresh token',
+    });
+  }
+};
