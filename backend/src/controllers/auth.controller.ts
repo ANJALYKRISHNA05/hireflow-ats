@@ -1,14 +1,56 @@
-import { Request, Response } from 'express';
-import { container } from '../container';
-import { AuthService } from '../services/auth.service';
-import { StatusCodes } from '../constants/statusCodes';
-import { Messages } from '../constants/messages';
-import { plainToClass } from 'class-transformer';
-import { validate } from 'class-validator';
-import { UserRole } from '../types/roles';
-import { RegisterDto, LoginDto } from '../dtos/auth.dto';
+import { Request, Response } from "express";
+import { container } from "../container";
+import bcrypt from 'bcryptjs';
+import { User } from '../models/user.model';
+import { OtpService } from '../services/otp.service';
+import { EmailService } from '../services/email.service';
+import { AuthService } from "../services/auth.service";
+import { StatusCodes } from "../constants/statusCodes";
+import { Messages } from "../constants/messages";
+import { plainToClass } from "class-transformer";
+import { validate } from "class-validator";
+import { UserRole } from "../types/roles";
+import { RegisterDto, LoginDto } from "../dtos/auth.dto";
+import { getErrorMessage } from '../utils/error.util';
+import { Error } from "mongoose";
 
 const authService = container.get<AuthService>(AuthService);
+
+const otpService = new OtpService();
+const emailService = new EmailService();
+
+export const requestRegisterOtp=async(req:Request,res:Response)=>{
+  try{
+    const {email}=req.body;
+    if(!email){
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        success:false,
+        message:"Email is required",
+      })
+    }
+
+    const userExists=await User.findOne({email})
+    if(userExists){
+      return res.status(StatusCodes.CONFLICT).json({
+        success:false,
+        message:"User already exists"
+      })
+    }
+    const otp=await otpService.createOtp(email);
+    await emailService.sendOtpEmail(email,otp);
+    
+    return res.status(StatusCodes.OK).json({
+      success: true,
+      message: "OTP sent to email",
+    });
+  }catch (error: unknown) {
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: getErrorMessage(error),
+    });
+}
+
+}
 
 export const register = async (req: Request, res: Response) => {
   try {
@@ -16,10 +58,12 @@ export const register = async (req: Request, res: Response) => {
     const errors = await validate(dto);
 
     if (errors.length > 0) {
-      const errorMessages = errors.map(err => err.constraints?.[Object.keys(err.constraints)[0]]);
+      const errorMessages = errors.map(
+        (err) => err.constraints?.[Object.keys(err.constraints)[0]],
+      );
       return res.status(StatusCodes.BAD_REQUEST).json({
         success: false,
-        message: 'Validation failed',
+        message: "Validation failed",
         errors: errorMessages,
       });
     }
@@ -28,7 +72,7 @@ export const register = async (req: Request, res: Response) => {
       dto.name,
       dto.email,
       dto.password,
-      dto.role || UserRole.CANDIDATE
+      dto.role || UserRole.CANDIDATE,
     );
 
     res.status(StatusCodes.CREATED).json({
@@ -42,14 +86,50 @@ export const register = async (req: Request, res: Response) => {
         role: result.user.role,
       },
     });
-  } catch (error: any) {
-    console.error(error);
-    res.status(StatusCodes.BAD_REQUEST).json({
+  } catch (error: unknown) {
+  return res.status(StatusCodes.BAD_REQUEST).json({
+    success: false,
+    message: getErrorMessage(error),
+  });
+}
+};
+
+
+
+export const verifyOtpAndRegister = async (req: Request, res: Response) => {
+  try {
+    const { name, email, password, role, otp } = req.body;
+
+    if (!name || !email || !password || !otp) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: "All fields are required",
+      });
+    }
+
+    await otpService.verifyOtp(email, otp);
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    await User.create({
+      name,
+      email,
+      password: hashedPassword,
+      role: role || UserRole.CANDIDATE,
+    });
+
+    return res.status(StatusCodes.CREATED).json({
+      success: true,
+      message: "Registration successful. Please login.",
+    });
+  } catch (error: unknown) {
+    return res.status(StatusCodes.BAD_REQUEST).json({
       success: false,
-      message: error.message || Messages.SERVER_ERROR,
+      message: getErrorMessage(error),
     });
   }
 };
+
 
 export const login = async (req: Request, res: Response) => {
   try {
@@ -57,14 +137,16 @@ export const login = async (req: Request, res: Response) => {
     const errors = await validate(dto);
 
     if (errors.length > 0) {
-      const errorMessages = errors.map(err => err.constraints?.[Object.keys(err.constraints)[0]]);
+      const errorMessages = errors.map(
+        (err) => err.constraints?.[Object.keys(err.constraints)[0]],
+      );
       return res.status(StatusCodes.BAD_REQUEST).json({
         success: false,
-        message: 'Validation failed',
+        message: "Validation failed",
         errors: errorMessages,
       });
     }
-const result = await authService.login(dto.email, dto.password);
+    const result = await authService.login(dto.email, dto.password);
 
     res.status(StatusCodes.OK).json({
       success: true,
@@ -78,42 +160,44 @@ const result = await authService.login(dto.email, dto.password);
         role: result.user.role,
       },
     });
-  } catch (error: any) {
-    console.error(error);
+  } catch (error:unknown) {
+
     res.status(StatusCodes.UNAUTHORIZED).json({
       success: false,
-      message: error.message || Messages.INVALID_CREDENTIALS,
+      message: getErrorMessage(error)
+|| Messages.INVALID_CREDENTIALS,
     });
   }
 };
 
+export const logout = async (req: Request, res: Response) => {
+  try {
+    const userId = (req
 
-export const logout=async(req:Request,res:Response)=>{
-  try{
-    const userId=(req as any).user.id;
+      
+    ).user.id;
     await authService.logout(userId);
     res.status(StatusCodes.OK).json({
-      success:true,
-      message:'Logged out successfully.Refresh token invalidated'
-    })
-  }catch(error:any){
-    console.error('Logout error:', error);
+      success: true,
+      message: "Logged out successfully.Refresh token invalidated",
+    });
+  } catch (error: unknown) {
+    console.error("Logout error:", error);
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       success: false,
-      message: 'Logout failed'
+      message:getErrorMessage(error),
     });
   }
-  }
+};
 
-
-  export const refresh = async (req: Request, res: Response) => {
+export const refresh = async (req: Request, res: Response) => {
   try {
     const { refreshToken } = req.body;
 
     if (!refreshToken) {
       return res.status(StatusCodes.BAD_REQUEST).json({
         success: false,
-        message: 'Refresh token required',
+        message:getErrorMessage(Error),
       });
     }
 
@@ -124,10 +208,10 @@ export const logout=async(req:Request,res:Response)=>{
       accessToken: result.accessToken,
       refreshToken: result.refreshToken,
     });
-  } catch (error: any) {
+  } catch (error:unknown) {
     res.status(StatusCodes.UNAUTHORIZED).json({
       success: false,
-      message: error.message || 'Invalid refresh token',
+      message:getErrorMessage(error) || "Invalid refresh token",
     });
   }
 };

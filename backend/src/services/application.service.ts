@@ -1,87 +1,98 @@
-import { injectable, inject } from 'inversify';
-import { IApplicationRepository } from '../interfaces/repositories/application.repository.interface';
-import { IApplication, ApplicationStatus } from '../models/application.model';
-import { UserRole } from '../types/roles';
-import { Messages } from '../constants/messages';
-import { StatusCodes } from '../constants/statusCodes';
-import { Types } from 'mongoose';
+import { injectable, inject } from "inversify";
+import { IApplicationRepository } from "../interfaces/repositories/application.repository.interface";
+import { IApplication, ApplicationStatus } from "../models/application.model";
+import { UserRole } from "../types/roles";
+import { Messages } from "../constants/messages";
+import { Types } from "mongoose";
+
+interface ApplyToJobInput {
+  userId: string;
+  role: UserRole;
+  jobId: string;
+  files?: { [fieldname: string]: Express.Multer.File[] };
+}
 
 @injectable()
 export class ApplicationService {
   constructor(
-    @inject('IApplicationRepository') private applicationRepository: IApplicationRepository
+    @inject("IApplicationRepository")
+    private applicationRepository: IApplicationRepository,
   ) {}
 
-  async applyToJob(
-    candidateId: string,
-    candidateRole: UserRole,
-    jobId: string,
-    resumeUrl: string,
-    coverLetterUrl?: string
-  ): Promise<IApplication> {
-  
-    if (candidateRole !== UserRole.CANDIDATE) {
+  async applyToJob(input: ApplyToJobInput): Promise<IApplication> {
+    const { userId, role, jobId, files } = input;
+
+    if (role !== UserRole.CANDIDATE) {
       throw new Error(Messages.FORBIDDEN);
     }
 
+    const resumeFile = files?.resume?.[0];
+    const coverLetterFile = files?.coverLetter?.[0];
 
-    const existing = await this.applicationRepository.findByCandidate(candidateId);
-    if (existing.some(app => app.job.toString() === jobId)) {
-      throw new Error('You have already applied to this job');
+    if (!resumeFile) {
+      throw new Error("Resume file is required");
     }
 
-    const applicationData = {
-     job: new Types.ObjectId(jobId),         
-    candidate: new Types.ObjectId(candidateId),
-      status: ApplicationStatus.APPLIED,
-      resumeUrl,
-      coverLetterUrl,
-    };
+    const existingApplications =
+      await this.applicationRepository.findByCandidate(userId);
 
-    return await this.applicationRepository.create(applicationData);
+    if (existingApplications.some((app) => app.job.toString() === jobId)) {
+      throw new Error("You have already applied to this job");
+    }
+
+    return this.applicationRepository.create({
+      job: new Types.ObjectId(jobId),
+      candidate: new Types.ObjectId(userId),
+      status: ApplicationStatus.APPLIED,
+      resumeUrl: resumeFile.path,
+      coverLetterUrl: coverLetterFile?.path,
+    });
   }
 
   async getMyApplications(candidateId: string): Promise<IApplication[]> {
-    return await this.applicationRepository.findByCandidate(candidateId);
+    return this.applicationRepository.findByCandidate(candidateId);
   }
 
   async getApplicationsForJob(
     recruiterId: string,
-    recruiterRole: UserRole,
-    jobId: string
+    role: UserRole,
+    jobId: string,
   ): Promise<IApplication[]> {
-
-    const applications = await this.applicationRepository.findByJob(jobId);
-   
-    if (recruiterRole !== UserRole.RECRUITER && recruiterRole !== UserRole.ADMIN) {
+    if (role !== UserRole.RECRUITER && role !== UserRole.ADMIN) {
       throw new Error(Messages.FORBIDDEN);
     }
 
-    return applications;
+    return this.applicationRepository.findByJob(jobId);
   }
 
-async updateApplicationStatus(
-  recruiterId: string,
-  recruiterRole: UserRole,
-  applicationId: string,
-  newStatus: ApplicationStatus,
-  notes?: string
-): Promise<IApplication> {  
-  const application = await this.applicationRepository.findById(applicationId);
-  if (!application) {
-    throw new Error(Messages.RESOURCE_NOT_FOUND);
-  }
+  async updateApplicationStatus(
+    recruiterId: string,
+    role: UserRole,
+    applicationId: string,
+    status: ApplicationStatus,
+    notes?: string,
+  ): Promise<IApplication> {
+    if (role !== UserRole.RECRUITER && role !== UserRole.ADMIN) {
+      throw new Error(Messages.FORBIDDEN);
+    }
 
-  if (recruiterRole !== UserRole.RECRUITER && recruiterRole !== UserRole.ADMIN) {
-    throw new Error(Messages.FORBIDDEN);
-  }
+    const application =
+      await this.applicationRepository.findById(applicationId);
 
-  const updated = await this.applicationRepository.updateStatus(applicationId, newStatus, notes);
-  
-  if (!updated) {
-    throw new Error('Failed to update application status'); 
-  }
+    if (!application) {
+      throw new Error(Messages.RESOURCE_NOT_FOUND);
+    }
 
-  return updated;
-}
+    const updated = await this.applicationRepository.updateStatus(
+      applicationId,
+      status,
+      notes,
+    );
+
+    if (!updated) {
+      throw new Error("Failed to update application status");
+    }
+
+    return updated;
+  }
 }

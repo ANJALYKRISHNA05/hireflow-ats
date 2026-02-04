@@ -1,9 +1,11 @@
 import {Router} from 'express'
-import {register,login,logout,refresh} from '../controllers/auth.controller'
+import {login,logout,refresh,requestRegisterOtp,verifyOtpAndRegister} from '../controllers/auth.controller'
 import { authenticate } from '../middlewares/auth.middleware';
 const router=Router()
-router.post('/register',register)
+
 router.post('/login',login)
 router.post('/logout', authenticate, logout);
 router.post('/refresh', refresh); 
+router.post("/register/request-otp", requestRegisterOtp);
+router.post("/register/verify-otp", verifyOtpAndRegister);
 export default router

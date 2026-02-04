@@ -24,15 +24,23 @@ export default function Login() {
     password: '',
   };
 
-  const onSubmit = async (values: LoginFormData, { setSubmitting }: any) => {
-    try {
-      const res = await api.post('/auth/login', values);
-      dispatch(loginSuccess(res.data));
-      navigate('/dashboard');
-    } finally {
-      setSubmitting(false);
+const onSubmit = async (values: LoginFormData, { setSubmitting }: any) => {
+  try {
+    const res = await api.post('/auth/login', values);
+
+    if (res.data.otpRequired) {
+      dispatch(loginSuccess({ otpRequired: true }));
+      navigate('/verify-otp');
+      return;
     }
-  };
+
+    dispatch(loginSuccess(res.data));
+    navigate('/dashboard');
+  } finally {
+    setSubmitting(false);
+  }
+};
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-blue-50 px-4">

@@ -8,7 +8,7 @@ dotenv.config();
 const JWT_SECRET=process.env.JWT_SECRET!;
 export const authenticate=(req:Request,res:Response,next:NextFunction)=>{
     const authHeader=req.headers.authorization;
-    console.log('just checking')
+
     if(!authHeader||!authHeader.startsWith('Bearer ')){
         return res.status(StatusCodes.UNAUTHORIZED).json({
             success:false,
@@ -26,7 +26,6 @@ export const authenticate=(req:Request,res:Response,next:NextFunction)=>{
   id: decoded.userId,
   role: decoded.role
 };
- console.log(decoded,"decoded")
 
 next()
 
