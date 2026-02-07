@@ -34,15 +34,19 @@ export default function Login() {
             try {
               const res = await api.post("/auth/login", values);
 
-              // backend must return: { accessToken, user }
-              dispatch(loginSuccess(res.data));
+              dispatch(
+                loginSuccess({
+                  accessToken: res.data.accessToken,
+                  user: res.data.user,
+                })
+              );
 
               toast.success("Login successful!");
               navigate("/dashboard");
             } catch (err: any) {
-              const message =
-                err.response?.data?.message || "Login failed";
-              toast.error(message);
+              toast.error(
+                err.response?.data?.message || "Login failed"
+              );
             } finally {
               setSubmitting(false);
             }
@@ -50,7 +54,6 @@ export default function Login() {
         >
           {({ isSubmitting }) => (
             <Form className="space-y-6">
-              {/* Email */}
               <div>
                 <Field
                   name="email"
@@ -65,7 +68,6 @@ export default function Login() {
                 />
               </div>
 
-              {/* Password */}
               <div>
                 <Field
                   name="password"

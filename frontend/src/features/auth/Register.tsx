@@ -29,42 +29,6 @@ const registerSchema = Yup.object({
 export default function Register() {
   const navigate = useNavigate();
 
-  const initialValues: RegisterFormData = {
-    name: "",
-    email: "",
-    password: "",
-    role: "",
-  };
-
-  const onSubmit = async (
-    values: RegisterFormData,
-    { setSubmitting }: any
-  ) => {
-    try {
-      await api.post("/auth/register/request-otp", {
-        email: values.email,
-      });
-
-      toast.success("OTP sent to your email!");
-
-      navigate("/verify-otp", {
-        state: {
-          email: values.email,
-          name: values.name,
-          password: values.password,
-          role: values.role,
-        },
-      });
-    } catch (err: any) {
-      const message =
-        err.response?.data?.message ||
-        "Registration failed. Try again.";
-      toast.error(message);
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 via-white to-blue-50 px-4">
       <div className="w-full max-w-md bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-100/50 p-8 md:p-10">
@@ -78,9 +42,33 @@ export default function Register() {
         </div>
 
         <Formik
-          initialValues={initialValues}
+          initialValues={{
+            name: "",
+            email: "",
+            password: "",
+            role: "",
+          }}
           validationSchema={registerSchema}
-          onSubmit={onSubmit}
+          onSubmit={async (values, { setSubmitting }) => {
+            try {
+              await api.post("/auth/register/request-otp", {
+                email: values.email,
+              });
+
+              toast.success("OTP sent to your email!");
+
+              navigate("/verify-otp", {
+                state: values,
+              });
+            } catch (err: any) {
+              toast.error(
+                err.response?.data?.message ||
+                  "Registration failed. Try again."
+              );
+            } finally {
+              setSubmitting(false);
+            }
+          }}
         >
           {({ isSubmitting }) => (
             <Form className="space-y-6">
@@ -91,8 +79,8 @@ export default function Register() {
                 </label>
                 <Field
                   name="name"
-                  className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 outline-none"
                   placeholder="John Doe"
+                  className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 outline-none"
                 />
                 <ErrorMessage
                   name="name"
@@ -109,8 +97,8 @@ export default function Register() {
                 <Field
                   name="email"
                   type="email"
-                  className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 outline-none"
                   placeholder="you@example.com"
+                  className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 outline-none"
                 />
                 <ErrorMessage
                   name="email"
@@ -127,8 +115,8 @@ export default function Register() {
                 <Field
                   name="password"
                   type="password"
-                  className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 outline-none"
                   placeholder="••••••••"
+                  className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 outline-none"
                 />
                 <ErrorMessage
                   name="password"
