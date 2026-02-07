@@ -16,9 +16,6 @@ const authService = container.get<AuthService>(AuthService);
 const otpService = new OtpService();
 const emailService = new EmailService();
 
-/**
- * STEP 1: REQUEST OTP
- */
 export const requestRegisterOtp = async (req: Request, res: Response) => {
   try {
     const { email } = req.body;
@@ -53,9 +50,7 @@ export const requestRegisterOtp = async (req: Request, res: Response) => {
   }
 };
 
-/**
- * STEP 2: VERIFY OTP + REGISTER
- */
+
 export const register = async (req: Request, res: Response) => {
   try {
     const dto = plainToClass(RegisterDto, req.body);
@@ -83,17 +78,18 @@ export const register = async (req: Request, res: Response) => {
       dto.role || UserRole.CANDIDATE
     );
 
-    return res.status(StatusCodes.CREATED).json({
-      success: true,
-      message: Messages.REGISTER_SUCCESS,
-      accessToken: result.token,
-      user: {
-        id: result.user._id,
-        name: result.user.name,
-        email: result.user.email,
-        role: result.user.role,
-      },
-    });
+return res.status(StatusCodes.CREATED).json({
+  success: true,
+  message: Messages.REGISTER_SUCCESS,
+  accessToken: result.accessToken,
+  refreshToken: result.refreshToken,
+  user: {
+    id: result.user._id.toString(),
+    name: result.user.name,
+    email: result.user.email,
+    role: result.user.role.toLowerCase(),   // normalized to lowercase
+  },
+});
   } catch (error: unknown) {
     return res.status(StatusCodes.BAD_REQUEST).json({
       success: false,
@@ -122,18 +118,18 @@ export const login = async (req: Request, res: Response) => {
 
     const result = await authService.login(dto.email, dto.password);
 
-    return res.status(StatusCodes.OK).json({
-      success: true,
-      message: Messages.LOGIN_SUCCESS,
-      accessToken: result.accessToken,
-      refreshToken: result.refreshToken,
-      user: {
-        id: result.user._id,
-        name: result.user.name,
-        email: result.user.email,
-        role: result.user.role,
-      },
-    });
+return res.status(StatusCodes.OK).json({
+  success: true,
+  message: Messages.LOGIN_SUCCESS,
+  accessToken: result.accessToken,
+  refreshToken: result.refreshToken,
+  user: {
+    id: result.user._id.toString(),
+    name: result.user.name,
+    email: result.user.email,
+    role: result.user.role.toLowerCase(),   // normalized to lowercase
+  },
+});
   } catch (error: unknown) {
     return res.status(StatusCodes.UNAUTHORIZED).json({
       success: false,

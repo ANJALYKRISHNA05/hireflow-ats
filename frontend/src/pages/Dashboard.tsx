@@ -1,14 +1,14 @@
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../features/auth/authSlice";
 import type { RootState } from "../store";
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export default function Dashboard() {
   const { user } = useSelector((state: RootState) => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  if (!user) return <Navigate to="/login" replace />;
+  // ProtectedRoute already ensures we're logged in → no need for extra check here
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
@@ -19,19 +19,17 @@ export default function Dashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <h1 className="text-3xl md:text-4xl font-bold">
-                    Welcome back, {user.name}
+                    Welcome back, {user?.name || user?.email.split('@')[0]}
                   </h1>
                   <p className="mt-2 text-indigo-100">
                     You're signed in as{" "}
-                    <span className="font-semibold">
-                      {user.role}
-                    </span>
+                    <span className="font-semibold">{user?.role}</span>
                   </p>
                 </div>
 
                 <div className="hidden sm:block">
                   <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-white/20 flex items-center justify-center text-2xl font-bold">
-                    {user.name[0].toUpperCase()}
+                    {user?.name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase()}
                   </div>
                 </div>
               </div>
@@ -40,22 +38,25 @@ export default function Dashboard() {
             <div className="p-8 md:p-10 space-y-8">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div className="bg-gray-50 p-6 rounded-xl border">
-                  <h3 className="text-lg font-semibold">
-                    Account Type
-                  </h3>
+                  <h3 className="text-lg font-semibold">Account Type</h3>
                   <p className="mt-2 text-2xl font-bold text-indigo-600 capitalize">
-                    {user.role}
+                    {user?.role}
                   </p>
                 </div>
 
                 <div className="bg-gray-50 p-6 rounded-xl border">
-                  <h3 className="text-lg font-semibold">
-                    Email
-                  </h3>
-                  <p className="mt-2 text-lg break-all">
-                    {user.email}
-                  </p>
+                  <h3 className="text-lg font-semibold">Email</h3>
+                  <p className="mt-2 text-lg break-all">{user?.email}</p>
                 </div>
+
+                <div className="mt-8">
+  <button
+    onClick={() => navigate('/profile')}
+    className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
+  >
+    View Profile
+  </button>
+</div>
               </div>
 
               <button

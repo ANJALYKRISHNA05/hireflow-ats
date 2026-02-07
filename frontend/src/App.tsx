@@ -4,7 +4,7 @@ import Register from './features/auth/Register';
 import VerifyOtp from './features/auth/OtpVerify';
 import ProtectedRoute from './routes/ProtectedRoute';
 import Dashboard from './pages/Dashboard';
-
+import Profile from './pages/profile'
 export default function App() {
   return (
     <BrowserRouter>
@@ -21,6 +21,14 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+  path="/profile"
+  element={
+    <ProtectedRoute>
+      <Profile />
+    </ProtectedRoute>
+  }
+/>
 
         <Route path="/" element={<Navigate to="/login" replace />} />
       </Routes>
