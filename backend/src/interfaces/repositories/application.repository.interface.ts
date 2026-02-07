@@ -1,5 +1,5 @@
 import { IApplication } from '../../models/application.model';
-import { ApplicationStatus } from '../../models/application.model'; // ← add this line
+import { ApplicationStatus } from '../../models/application.model'; 
 
 export interface IApplicationRepository {
   create(applicationData: Partial<IApplication>): Promise<IApplication>;

@@ -25,12 +25,7 @@ api.interceptors.response.use(
     const status = error.response?.status;
     const url = error.config?.url || '';
 
-    
-    if (
-      status === 401 &&
-      !url.includes('/auth/login') &&
-      !url.includes('/auth/verify-otp')
-    ) {
+    if (status === 401 && !url.includes('/auth/')) {
       store.dispatch(logout());
       window.location.href = '/login';
     }

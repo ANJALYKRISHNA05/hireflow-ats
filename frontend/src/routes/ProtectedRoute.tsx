@@ -7,15 +7,9 @@ export default function ProtectedRoute({
 }: {
   children: JSX.Element;
 }) {
-  const { isAuthenticated, otpRequired } = useSelector(
-    (state: RootState) => state.auth
+  const isAuthenticated = useSelector(
+    (state: RootState) => state.auth.isAuthenticated
   );
 
-  
-  if (otpRequired) {
-    return <Navigate to="/verify-otp" replace />;
-  }
-
- 
   return isAuthenticated ? children : <Navigate to="/login" replace />;
 }

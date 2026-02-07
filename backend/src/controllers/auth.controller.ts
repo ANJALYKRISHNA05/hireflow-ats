@@ -1,9 +1,8 @@
 import { Request, Response } from "express";
 import { container } from "../container";
-import bcrypt from 'bcryptjs';
-import { User } from '../models/user.model';
-import { OtpService } from '../services/otp.service';
-import { EmailService } from '../services/email.service';
+import { User } from "../models/user.model";
+import { OtpService } from "../services/otp.service";
+import { EmailService } from "../services/email.service";
 import { AuthService } from "../services/auth.service";
 import { StatusCodes } from "../constants/statusCodes";
 import { Messages } from "../constants/messages";
@@ -11,47 +10,52 @@ import { plainToClass } from "class-transformer";
 import { validate } from "class-validator";
 import { UserRole } from "../types/roles";
 import { RegisterDto, LoginDto } from "../dtos/auth.dto";
-import { getErrorMessage } from '../utils/error.util';
-import { Error } from "mongoose";
+import { getErrorMessage } from "../utils/error.util";
 
 const authService = container.get<AuthService>(AuthService);
-
 const otpService = new OtpService();
 const emailService = new EmailService();
 
-export const requestRegisterOtp=async(req:Request,res:Response)=>{
-  try{
-    const {email}=req.body;
-    if(!email){
+/**
+ * STEP 1: REQUEST OTP
+ */
+export const requestRegisterOtp = async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
       return res.status(StatusCodes.BAD_REQUEST).json({
-        success:false,
-        message:"Email is required",
-      })
+        success: false,
+        message: "Email is required",
+      });
     }
 
-    const userExists=await User.findOne({email})
-    if(userExists){
+    const userExists = await User.findOne({ email });
+    if (userExists) {
       return res.status(StatusCodes.CONFLICT).json({
-        success:false,
-        message:"User already exists"
-      })
+        success: false,
+        message: "User already exists",
+      });
     }
-    const otp=await otpService.createOtp(email);
-    await emailService.sendOtpEmail(email,otp);
-    
+
+    const otp = await otpService.createOtp(email);
+    await emailService.sendOtpEmail(email, otp);
+
     return res.status(StatusCodes.OK).json({
       success: true,
       message: "OTP sent to email",
     });
-  }catch (error: unknown) {
+  } catch (error: unknown) {
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: getErrorMessage(error),
     });
-}
+  }
+};
 
-}
-
+/**
+ * STEP 2: VERIFY OTP + REGISTER
+ */
 export const register = async (req: Request, res: Response) => {
   try {
     const dto = plainToClass(RegisterDto, req.body);
@@ -59,8 +63,9 @@ export const register = async (req: Request, res: Response) => {
 
     if (errors.length > 0) {
       const errorMessages = errors.map(
-        (err) => err.constraints?.[Object.keys(err.constraints)[0]],
+        (err) => err.constraints?.[Object.keys(err.constraints)[0]]
       );
+
       return res.status(StatusCodes.BAD_REQUEST).json({
         success: false,
         message: "Validation failed",
@@ -68,14 +73,17 @@ export const register = async (req: Request, res: Response) => {
       });
     }
 
+   
+    await otpService.verifyOtp(dto.email, dto.otp);
+
     const result = await authService.register(
       dto.name,
       dto.email,
       dto.password,
-      dto.role || UserRole.CANDIDATE,
+      dto.role || UserRole.CANDIDATE
     );
 
-    res.status(StatusCodes.CREATED).json({
+    return res.status(StatusCodes.CREATED).json({
       success: true,
       message: Messages.REGISTER_SUCCESS,
       accessToken: result.token,
@@ -85,42 +93,6 @@ export const register = async (req: Request, res: Response) => {
         email: result.user.email,
         role: result.user.role,
       },
-    });
-  } catch (error: unknown) {
-  return res.status(StatusCodes.BAD_REQUEST).json({
-    success: false,
-    message: getErrorMessage(error),
-  });
-}
-};
-
-
-
-export const verifyOtpAndRegister = async (req: Request, res: Response) => {
-  try {
-    const { name, email, password, role, otp } = req.body;
-
-    if (!name || !email || !password || !otp) {
-      return res.status(StatusCodes.BAD_REQUEST).json({
-        success: false,
-        message: "All fields are required",
-      });
-    }
-
-    await otpService.verifyOtp(email, otp);
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    await User.create({
-      name,
-      email,
-      password: hashedPassword,
-      role: role || UserRole.CANDIDATE,
-    });
-
-    return res.status(StatusCodes.CREATED).json({
-      success: true,
-      message: "Registration successful. Please login.",
     });
   } catch (error: unknown) {
     return res.status(StatusCodes.BAD_REQUEST).json({
@@ -138,17 +110,19 @@ export const login = async (req: Request, res: Response) => {
 
     if (errors.length > 0) {
       const errorMessages = errors.map(
-        (err) => err.constraints?.[Object.keys(err.constraints)[0]],
+        (err) => err.constraints?.[Object.keys(err.constraints)[0]]
       );
+
       return res.status(StatusCodes.BAD_REQUEST).json({
         success: false,
         message: "Validation failed",
         errors: errorMessages,
       });
     }
+
     const result = await authService.login(dto.email, dto.password);
 
-    res.status(StatusCodes.OK).json({
+    return res.status(StatusCodes.OK).json({
       success: true,
       message: Messages.LOGIN_SUCCESS,
       accessToken: result.accessToken,
@@ -160,15 +134,14 @@ export const login = async (req: Request, res: Response) => {
         role: result.user.role,
       },
     });
-  } catch (error:unknown) {
-
-    res.status(StatusCodes.UNAUTHORIZED).json({
+  } catch (error: unknown) {
+    return res.status(StatusCodes.UNAUTHORIZED).json({
       success: false,
-      message: getErrorMessage(error)
-|| Messages.INVALID_CREDENTIALS,
+      message: getErrorMessage(error) || Messages.INVALID_CREDENTIALS,
     });
   }
 };
+
 
 export const logout = async (req: Request, res: Response) => {
   try {

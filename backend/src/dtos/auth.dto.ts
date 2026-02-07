@@ -1,30 +1,38 @@
-import { IsString, IsEmail, IsEnum, MinLength, IsNotEmpty } from 'class-validator';
-import { UserRole } from '../types/roles';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsString,
+  MinLength,
+  IsEnum,
+} from "class-validator";
+import { UserRole } from "../types/roles";
 
 export class RegisterDto {
   @IsString()
-  @IsNotEmpty({ message: 'Name is required' })
+  @IsNotEmpty()
   name!: string;
 
-  @IsEmail({}, { message: 'Invalid email format' })
-  @IsNotEmpty({ message: 'Email is required' })
+  @IsEmail()
   email!: string;
 
   @IsString()
-  @MinLength(6, { message: 'Password must be at least 6 characters' })
-  @IsNotEmpty({ message: 'Password is required' })
+  @MinLength(6)
   password!: string;
 
-  @IsEnum(UserRole, { message: 'Invalid role. Must be one of: admin, recruiter, candidate' })
-  role?: UserRole; 
+  @IsEnum(UserRole)
+  role!: UserRole;
+
+  
+  @IsString()
+  @IsNotEmpty()
+  otp!: string;
 }
 
 export class LoginDto {
-  @IsEmail({}, { message: 'Invalid email format' })
-  @IsNotEmpty({ message: 'Email is required' })
+  @IsEmail()
   email!: string;
 
   @IsString()
-  @IsNotEmpty({ message: 'Password is required' })
+  @IsNotEmpty()
   password!: string;
 }
