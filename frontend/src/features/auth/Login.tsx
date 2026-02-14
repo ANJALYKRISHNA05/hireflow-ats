@@ -37,12 +37,23 @@ export default function Login() {
               dispatch(
                 loginSuccess({
                   accessToken: res.data.accessToken,
+                  refreshToken: res.data.refreshToken,
                   user: res.data.user,
                 })
               );
 
               toast.success("Login successful!");
-              navigate("/dashboard");
+
+            
+              const role = res.data.user.role;
+              if (role === "candidate") {
+                navigate("/candidate/dashboard");
+              } else if (role === "recruiter") {
+                navigate("/recruiter/dashboard");
+              } else {
+                toast.error("Unknown role. Contact support.");
+                navigate("/login");
+              }
             } catch (err: any) {
               toast.error(
                 err.response?.data?.message || "Login failed"
@@ -80,6 +91,16 @@ export default function Login() {
                   component="p"
                   className="text-sm text-red-600 mt-1"
                 />
+              </div>
+
+              <div className="text-right mt-2">
+                <button
+                  type="button"
+                  onClick={() => navigate("/forgot-password")}
+                  className="text-sm text-indigo-600 hover:text-indigo-800 hover:underline transition"
+                >
+                  Forgot password?
+                </button>
               </div>
 
               <button

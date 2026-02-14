@@ -10,6 +10,8 @@ import { ApplicationService } from './services/application.service'
 import { JobService } from './services/job.service'
 import { AuthService } from './services/auth.service'; 
 import { UserService } from './services/user.service'
+import { OtpService } from './services/otp.service';
+import { EmailService } from './services/email.service';
 const container = new Container();
 
 //repository
@@ -22,5 +24,6 @@ container.bind<AuthService>(AuthService).toSelf();
 container.bind<UserService>('UserService').to(UserService)
 container.bind<JobService>(JobService).toSelf();
 container.bind<ApplicationService>(ApplicationService).toSelf();
-
+container.bind<OtpService>(OtpService).toSelf().inSingletonScope();
+container.bind<EmailService>(EmailService).toSelf().inSingletonScope();
 export { container };

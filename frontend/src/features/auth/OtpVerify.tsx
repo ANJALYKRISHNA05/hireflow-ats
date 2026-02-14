@@ -95,12 +95,23 @@ export default function OtpVerify() {
               dispatch(
                 loginSuccess({
                   accessToken: res.data.accessToken,
+                   refreshToken: res.data.refreshToken,
                   user: res.data.user,
                 })
               );
 
               toast.success('Account created successfully');
-              navigate('/dashboard');
+
+             
+              if (role === "candidate") {
+                navigate("/candidate/dashboard");
+              } else if (role === "recruiter") {
+                navigate("/recruiter/dashboard");
+              } else {
+             
+                toast.error("Unknown role. Contact support.");
+                navigate("/login");
+              }
             } catch (err: any) {
               toast.error(err.response?.data?.message || 'Invalid OTP');
             } finally {

@@ -87,7 +87,7 @@ return res.status(StatusCodes.CREATED).json({
     id: result.user._id.toString(),
     name: result.user.name,
     email: result.user.email,
-    role: result.user.role.toLowerCase(),   // normalized to lowercase
+    role: result.user.role.toLowerCase(),  
   },
 });
   } catch (error: unknown) {
@@ -127,7 +127,7 @@ return res.status(StatusCodes.OK).json({
     id: result.user._id.toString(),
     name: result.user.name,
     email: result.user.email,
-    role: result.user.role.toLowerCase(),   // normalized to lowercase
+    role: result.user.role.toLowerCase(),   
   },
 });
   } catch (error: unknown) {
@@ -181,6 +181,68 @@ export const refresh = async (req: Request, res: Response) => {
     res.status(StatusCodes.UNAUTHORIZED).json({
       success: false,
       message:getErrorMessage(error) || "Invalid refresh token",
+    });
+  }
+};
+
+
+
+
+export const requestPasswordResetOtp = async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: "Email is required",
+      });
+    }
+
+    await authService.requestPasswordResetOtp(email);
+
+   
+    return res.status(StatusCodes.OK).json({
+      success: true,
+      message: "If your email is registered, you will receive an OTP shortly.",
+    });
+  } catch (error: unknown) {
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: getErrorMessage(error) || Messages.SERVER_ERROR,
+    });
+  }
+};
+
+export const resetPassword = async (req: Request, res: Response) => {
+  try {
+    const { email, otp, newPassword } = req.body;
+
+    if (!email || !otp || !newPassword) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: "Email, OTP and new password are required",
+      });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: "Password must be at least 6 characters",
+      });
+    }
+
+
+    await authService.resetPasswordWithOtp(email, otp, newPassword);
+
+    return res.status(StatusCodes.OK).json({
+      success: true,
+      message: "Password has been reset successfully. Please login.",
+    });
+  } catch (error: unknown) {
+    return res.status(StatusCodes.BAD_REQUEST).json({
+      success: false,
+      message: getErrorMessage(error) || "Invalid or expired OTP",
     });
   }
 };
