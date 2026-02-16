@@ -145,7 +145,7 @@ export default function JobDetail() {
             </div>
           )}
 
-          {/* Description */}
+        
           {job.description && (
             <div className="p-8 border-b border-slate-200">
               <h3 className="text-lg font-semibold text-slate-800 mb-4">Job Description</h3>
@@ -155,14 +155,14 @@ export default function JobDetail() {
             </div>
           )}
 
-          {/* Footer / Apply Button */}
+      
           <div className="p-8 bg-slate-50">
             <div className="flex flex-col sm:flex-row gap-4 justify-between items-center">
               <div className="text-sm text-slate-500">
                 Posted {formatDistanceToNow(new Date(job.createdAt), { addSuffix: true })}
               </div>
               <button
-                onClick={() => navigate(`/apply/${job._id}`)} // or open modal later
+              onClick={() => navigate(`/apply/${job._id}`)} 
                 className="w-full sm:w-auto px-10 py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl transition shadow-lg hover:shadow-xl"
               >
                 Apply Now

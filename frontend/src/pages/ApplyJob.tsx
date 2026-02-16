@@ -8,19 +8,20 @@ import toast from "react-hot-toast";
 import api from "../api/api";
 
 export default function ApplyJob() {
-  const { id } = useParams<{ id: string }>();
+  const { jobId } = useParams<{ jobId: string }>();  // Correct param name
   const navigate = useNavigate();
   const { user } = useSelector((state: RootState) => state.auth);
 
   const [job, setJob] = useState<Job | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null); // Added for better error display
 
   const [resumeFile, setResumeFile] = useState<File | null>(null);
   const [coverLetterFile, setCoverLetterFile] = useState<File | null>(null);
 
   useEffect(() => {
-    if (!id) {
+    if (!jobId) {
       navigate("/jobs");
       return;
     }
@@ -28,10 +29,13 @@ export default function ApplyJob() {
     const fetchJob = async () => {
       try {
         setLoading(true);
-        const data = await getJobById(id);
+        setError(null);
+        const data = await getJobById(jobId); // Use jobId here
         setJob(data);
       } catch (err: any) {
-        toast.error("Could not load job details");
+        const message = err.message || "Job not found or failed to load.";
+        setError(message);
+        toast.error(message);
         navigate("/jobs");
       } finally {
         setLoading(false);
@@ -39,13 +43,12 @@ export default function ApplyJob() {
     };
 
     fetchJob();
-  }, [id, navigate]);
+  }, [jobId, navigate]); // Depend on jobId
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: "resume" | "cover") => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validate file type & size (5MB max, PDF/DOC/DOCX)
     const allowedTypes = [
       "application/pdf",
       "application/msword",
@@ -72,24 +75,24 @@ export default function ApplyJob() {
       return;
     }
 
-    if (!id) return;
+    if (!jobId) return;
 
     setSubmitting(true);
 
     const formData = new FormData();
-    formData.append("jobId", id);
+    formData.append("jobId", jobId);
     formData.append("resume", resumeFile);
     if (coverLetterFile) formData.append("coverLetter", coverLetterFile);
 
     try {
-      const res = await api.post("/applications", formData, {
+      await api.post("/applications", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
 
       toast.success("Application submitted successfully!");
-      navigate("/my-applications"); // redirect to applications list (build later)
+      navigate("/my-applications"); // Change this later when you build My Applications page
     } catch (err: any) {
       toast.error(err.response?.data?.message || "Failed to submit application");
     } finally {
@@ -108,13 +111,13 @@ export default function ApplyJob() {
     );
   }
 
-  if (!job) {
+  if (error || !job) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
         <div className="text-center max-w-md px-6">
           <h2 className="text-2xl font-bold text-red-600 mb-4">Job not found</h2>
           <p className="text-slate-700 mb-6">
-            This job may have been removed or is no longer available.
+            {error || "This job may have been removed or is no longer available."}
           </p>
           <button
             onClick={() => navigate("/jobs")}
@@ -132,7 +135,7 @@ export default function ApplyJob() {
       <div className="container mx-auto max-w-4xl">
         {/* Back Button */}
         <button
-          onClick={() => navigate(`/jobs/${id}`)}
+          onClick={() => navigate(`/jobs/${jobId}`)}
           className="mb-8 flex items-center gap-2 text-slate-600 hover:text-indigo-600 transition"
         >
           ← Back to Job Details

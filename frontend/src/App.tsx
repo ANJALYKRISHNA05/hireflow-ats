@@ -29,14 +29,14 @@ export default function App() {
             </ProtectedRoute>
           }
         />
-        <Route
-          path="/apply/:jobId"
-          element={
-            <ProtectedRoute>
-              <ApplyJob />
-            </ProtectedRoute>
-          }
-        />
+     <Route
+  path="/apply/:jobId"
+  element={
+    <ProtectedRoute>
+      <ApplyJob />
+    </ProtectedRoute>
+  }
+/>
         <Route
           path="/profile"
           element={
