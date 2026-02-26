@@ -1,8 +1,8 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document } from "mongoose";
 
 export interface IOtpVerification extends Document {
   email: string;
-  otp: string;           
+  otp: string;
   expiresAt: Date;
   attempts: number;
   createdAt: Date;
@@ -30,13 +30,12 @@ const otpVerificationSchema = new Schema<IOtpVerification>(
   },
   {
     timestamps: { createdAt: true, updatedAt: false },
-  }
+  },
 );
-
 
 otpVerificationSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
 export const OtpVerification = mongoose.model<IOtpVerification>(
-  'OtpVerification',
-  otpVerificationSchema
+  "OtpVerification",
+  otpVerificationSchema,
 );

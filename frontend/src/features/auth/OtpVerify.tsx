@@ -1,16 +1,16 @@
-import { useEffect, useState } from 'react';
-import { Formik, Form, Field, ErrorMessage } from 'formik';
-import * as Yup from 'yup';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
-import api from '../../api/api';
-import { loginSuccess } from './authSlice';
-import toast from 'react-hot-toast';
+import { useEffect, useState } from "react";
+import { Formik, Form, Field, ErrorMessage } from "formik";
+import * as Yup from "yup";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import api from "../../api/api";
+import { loginSuccess } from "./authSlice";
+import toast from "react-hot-toast";
 
 const otpSchema = Yup.object({
   otp: Yup.string()
-    .length(6, 'OTP must be 6 digits')
-    .required('OTP is required'),
+    .length(6, "OTP must be 6 digits")
+    .required("OTP is required"),
 });
 
 export default function OtpVerify() {
@@ -22,11 +22,11 @@ export default function OtpVerify() {
     email: string;
     name: string;
     password: string;
-    role: 'candidate' | 'recruiter';
+    role: "candidate" | "recruiter";
   } | null;
 
   if (!state) {
-    navigate('/register');
+    navigate("/register");
     return null;
   }
 
@@ -36,7 +36,6 @@ export default function OtpVerify() {
   const [expired, setExpired] = useState(false);
   const [resending, setResending] = useState(false);
 
-  // ⏱️ Countdown Timer
   useEffect(() => {
     if (timeLeft <= 0) {
       setExpired(true);
@@ -50,18 +49,17 @@ export default function OtpVerify() {
     return () => clearInterval(timer);
   }, [timeLeft]);
 
-  // 🔁 Resend OTP
   const resendOtp = async () => {
     try {
       setResending(true);
 
-      await api.post('/auth/register/request-otp', { email });
+      await api.post("/auth/register/request-otp", { email });
 
-      toast.success('OTP resent successfully');
+      toast.success("OTP resent successfully");
       setTimeLeft(60);
       setExpired(false);
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to resend OTP');
+      toast.error(err.response?.data?.message || "Failed to resend OTP");
     } finally {
       setResending(false);
     }
@@ -74,17 +72,18 @@ export default function OtpVerify() {
           Verify Your Email
         </h2>
         <p className="text-sm text-gray-600 text-center mb-6">
-          Enter the 6-digit OTP sent to <span className="font-medium">{email}</span>
+          Enter the 6-digit OTP sent to{" "}
+          <span className="font-medium">{email}</span>
         </p>
 
         <Formik
-          initialValues={{ otp: '' }}
+          initialValues={{ otp: "" }}
           validationSchema={otpSchema}
           onSubmit={async (values, { setSubmitting }) => {
             if (expired) return;
 
             try {
-              const res = await api.post('/auth/register', {
+              const res = await api.post("/auth/register", {
                 name,
                 email,
                 password,
@@ -95,25 +94,25 @@ export default function OtpVerify() {
               dispatch(
                 loginSuccess({
                   accessToken: res.data.accessToken,
-                   refreshToken: res.data.refreshToken,
+                  refreshToken: res.data.refreshToken,
                   user: res.data.user,
-                })
+                }),
               );
+              localStorage.setItem("accessToken", res.data.accessToken);
+              localStorage.setItem("refreshToken", res.data.refreshToken);
 
-              toast.success('Account created successfully');
+              toast.success("Account created successfully");
 
-             
               if (role === "candidate") {
                 navigate("/candidate/dashboard");
               } else if (role === "recruiter") {
                 navigate("/recruiter/dashboard");
               } else {
-             
                 toast.error("Unknown role. Contact support.");
                 navigate("/login");
               }
             } catch (err: any) {
-              toast.error(err.response?.data?.message || 'Invalid OTP');
+              toast.error(err.response?.data?.message || "Invalid OTP");
             } finally {
               setSubmitting(false);
             }
@@ -128,8 +127,8 @@ export default function OtpVerify() {
                   disabled={expired}
                   className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 ${
                     expired
-                      ? 'bg-gray-100 cursor-not-allowed'
-                      : 'focus:ring-blue-500'
+                      ? "bg-gray-100 cursor-not-allowed"
+                      : "focus:ring-blue-500"
                   }`}
                 />
                 <ErrorMessage
@@ -141,7 +140,7 @@ export default function OtpVerify() {
 
               {!expired ? (
                 <p className="text-sm text-gray-600 text-center">
-                  OTP expires in{' '}
+                  OTP expires in{" "}
                   <span className="font-semibold text-blue-600">
                     {timeLeft}s
                   </span>
@@ -157,8 +156,8 @@ export default function OtpVerify() {
                 disabled={isSubmitting || expired}
                 className={`w-full py-2 rounded-lg font-medium transition ${
                   expired
-                    ? 'bg-gray-400 cursor-not-allowed'
-                    : 'bg-blue-600 hover:bg-blue-700 text-white'
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-blue-600 hover:bg-blue-700 text-white"
                 }`}
               >
                 Verify OTP
@@ -173,7 +172,7 @@ export default function OtpVerify() {
             disabled={resending}
             className="mt-4 w-full py-2 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition disabled:opacity-50"
           >
-            {resending ? 'Resending...' : 'Resend OTP'}
+            {resending ? "Resending..." : "Resend OTP"}
           </button>
         )}
       </div>

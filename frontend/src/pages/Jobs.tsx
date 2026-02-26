@@ -5,7 +5,7 @@ import type { RootState } from "../store";
 import { getJobs } from "../api/jobs";
 import type { Job } from "../types/job";
 import toast from "react-hot-toast";
-import { formatDistanceToNow } from "date-fns"; // install: npm install date-fns
+import { formatDistanceToNow } from "date-fns"; 
 
 export default function Jobs() {
   const { isAuthenticated } = useSelector((state: RootState) => state.auth);
@@ -70,7 +70,7 @@ export default function Jobs() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-10 px-4 md:px-6">
       <div className="container mx-auto">
-        {/* Header */}
+        
         <div className="mb-10 text-center md:text-left">
           <h1 className="text-3xl md:text-4xl font-bold text-slate-800 tracking-tight">
             Find Your Next Opportunity
@@ -82,7 +82,7 @@ export default function Jobs() {
           </p>
         </div>
 
-        {/* Jobs or Empty State */}
+      
         {jobs.length === 0 ? (
           <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-12 text-center">
             <h2 className="text-2xl font-semibold text-slate-700 mb-4">
@@ -105,7 +105,7 @@ export default function Jobs() {
                 key={job._id}
                 className="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group"
               >
-                {/* Card Header */}
+              
                 <div className="p-6 pb-4 border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white">
                   <h3 className="text-xl font-semibold text-slate-800 line-clamp-2 group-hover:text-indigo-700 transition-colors">
                     {job.title}
@@ -115,7 +115,7 @@ export default function Jobs() {
                   </p>
                 </div>
 
-                {/* Card Body */}
+                
                 <div className="p-6 space-y-4">
                   <div className="flex flex-wrap gap-2">
                     <span className="px-3 py-1 bg-indigo-50 text-indigo-700 rounded-full text-sm font-medium">
@@ -159,7 +159,7 @@ export default function Jobs() {
                   )}
                 </div>
 
-                {/* Footer */}
+              
                 <div className="px-6 py-5 border-t border-slate-100 bg-slate-50">
                   <button
                     onClick={() => navigate(`/jobs/${job._id}`)}

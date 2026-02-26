@@ -39,12 +39,13 @@ export default function Login() {
                   accessToken: res.data.accessToken,
                   refreshToken: res.data.refreshToken,
                   user: res.data.user,
-                })
+                }),
               );
+              localStorage.setItem("accessToken", res.data.accessToken);
+              localStorage.setItem("refreshToken", res.data.refreshToken);
 
               toast.success("Login successful!");
 
-            
               const role = res.data.user.role;
               if (role === "candidate") {
                 navigate("/candidate/dashboard");
@@ -55,9 +56,7 @@ export default function Login() {
                 navigate("/login");
               }
             } catch (err: any) {
-              toast.error(
-                err.response?.data?.message || "Login failed"
-              );
+              toast.error(err.response?.data?.message || "Login failed");
             } finally {
               setSubmitting(false);
             }

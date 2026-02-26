@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { getJobById } from "../api/jobs";
 import type { Job } from "../types/job";
 import toast from "react-hot-toast";
-import { Briefcase, MapPin, DollarSign, Clock, Calendar } from "lucide-react";
+import { Briefcase, MapPin, DollarSign, Clock } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
 export default function JobDetail() {
@@ -69,7 +69,7 @@ export default function JobDetail() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-10 px-4 md:px-6">
       <div className="container mx-auto max-w-4xl">
-        {/* Back Button */}
+      
         <button
           onClick={() => navigate("/jobs")}
           className="mb-8 flex items-center gap-2 text-slate-600 hover:text-indigo-600 transition"
@@ -77,9 +77,8 @@ export default function JobDetail() {
           ← Back to Jobs
         </button>
 
-        {/* Job Card */}
         <div className="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden">
-          {/* Header */}
+         
           <div className="p-8 pb-6 bg-gradient-to-r from-slate-50 to-white border-b border-slate-200">
             <h1 className="text-3xl md:text-4xl font-bold text-slate-900 mb-3">
               {job.title}
@@ -89,7 +88,7 @@ export default function JobDetail() {
             </p>
           </div>
 
-          {/* Key Info */}
+         
           <div className="p-8 border-b border-slate-200">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <div className="flex items-start gap-3">
@@ -128,7 +127,7 @@ export default function JobDetail() {
             </div>
           </div>
 
-          {/* Skills */}
+         
           {job.skills?.length > 0 && (
             <div className="p-8 border-b border-slate-200">
               <h3 className="text-lg font-semibold text-slate-800 mb-4">Required Skills</h3>
@@ -159,7 +158,7 @@ export default function JobDetail() {
           <div className="p-8 bg-slate-50">
             <div className="flex flex-col sm:flex-row gap-4 justify-between items-center">
               <div className="text-sm text-slate-500">
-                Posted {formatDistanceToNow(new Date(job.createdAt), { addSuffix: true })}
+               Posted {formatDistanceToNow(new Date(job.createdAt), { addSuffix: true })}
               </div>
               <button
               onClick={() => navigate(`/apply/${job._id}`)} 

@@ -12,7 +12,9 @@ import ResetPassword from "./pages/ResetPassword";
 import JobDetail from "./pages/JobDetail";
 import Jobs from "./pages/Jobs";
 import ApplyJob from "./pages/ApplyJob";
-
+import PostJob from "./pages/recruiter/PostJob";
+import MyJobs from "./pages/recruiter/MyJobs";
+import JobApplicants from "./pages/recruiter/JobApplicants";
 export default function App() {
   return (
     <BrowserRouter>
@@ -29,19 +31,28 @@ export default function App() {
             </ProtectedRoute>
           }
         />
-     <Route
-  path="/apply/:jobId"
-  element={
-    <ProtectedRoute>
-      <ApplyJob />
-    </ProtectedRoute>
-  }
-/>
+
+        <Route
+          path="/apply/:jobId"
+          element={
+            <ProtectedRoute>
+              <ApplyJob />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/profile"
           element={
             <ProtectedRoute>
               <Profile />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/my-jobs"
+          element={
+            <ProtectedRoute>
+              <MyJobs />
             </ProtectedRoute>
           }
         />
@@ -77,6 +88,22 @@ export default function App() {
           element={
             <ProtectedRoute>
               <RecruiterDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/post-job"
+          element={
+            <ProtectedRoute>
+              <PostJob />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/jobs/:jobId/applicants"
+          element={
+            <ProtectedRoute>
+              <JobApplicants />
             </ProtectedRoute>
           }
         />

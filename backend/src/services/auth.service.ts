@@ -14,7 +14,7 @@ export class AuthService {
   constructor(
     @inject("IUserRepository") private userRepository: IUserRepository,
     @inject(OtpService) private otpService: OtpService,
-    @inject(EmailService) private emailService: EmailService
+    @inject(EmailService) private emailService: EmailService,
   ) {}
 
   async register(
@@ -125,7 +125,6 @@ export class AuthService {
     };
   }
 
-  
   async requestPasswordResetOtp(email: string): Promise<void> {
     const user = await this.userRepository.findByEmail(email);
 
@@ -137,16 +136,13 @@ export class AuthService {
     await this.emailService.sendOtpEmail(email, otp);
   }
 
-
   async resetPasswordWithOtp(
     email: string,
     otp: string,
-    newPassword: string
+    newPassword: string,
   ): Promise<void> {
-   
     await this.otpService.verifyOtp(email, otp);
 
-    
     const user = await this.userRepository.findByEmail(email);
     if (!user) {
       throw new Error(Messages.USER_NOT_FOUND);
@@ -154,7 +150,6 @@ export class AuthService {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(newPassword, salt);
 
-  
     await this.userRepository.update(user._id.toString(), {
       password: hashedPassword,
     });

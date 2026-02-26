@@ -8,14 +8,14 @@ import toast from "react-hot-toast";
 import api from "../api/api";
 
 export default function ApplyJob() {
-  const { jobId } = useParams<{ jobId: string }>();  // Correct param name
+  const { jobId } = useParams<{ jobId: string }>(); 
   const navigate = useNavigate();
   const { user } = useSelector((state: RootState) => state.auth);
 
   const [job, setJob] = useState<Job | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null); // Added for better error display
+  const [error, setError] = useState<string | null>(null); 
 
   const [resumeFile, setResumeFile] = useState<File | null>(null);
   const [coverLetterFile, setCoverLetterFile] = useState<File | null>(null);
@@ -30,7 +30,7 @@ export default function ApplyJob() {
       try {
         setLoading(true);
         setError(null);
-        const data = await getJobById(jobId); // Use jobId here
+        const data = await getJobById(jobId); 
         setJob(data);
       } catch (err: any) {
         const message = err.message || "Job not found or failed to load.";
@@ -43,7 +43,7 @@ export default function ApplyJob() {
     };
 
     fetchJob();
-  }, [jobId, navigate]); // Depend on jobId
+  }, [jobId, navigate]); 
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: "resume" | "cover") => {
     const file = e.target.files?.[0];
@@ -92,7 +92,7 @@ export default function ApplyJob() {
       });
 
       toast.success("Application submitted successfully!");
-      navigate("/my-applications"); // Change this later when you build My Applications page
+      navigate("/my-applications"); 
     } catch (err: any) {
       toast.error(err.response?.data?.message || "Failed to submit application");
     } finally {
@@ -133,7 +133,7 @@ export default function ApplyJob() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-10 px-4 md:px-6">
       <div className="container mx-auto max-w-4xl">
-        {/* Back Button */}
+       
         <button
           onClick={() => navigate(`/jobs/${jobId}`)}
           className="mb-8 flex items-center gap-2 text-slate-600 hover:text-indigo-600 transition"
@@ -141,7 +141,7 @@ export default function ApplyJob() {
           ← Back to Job Details
         </button>
 
-        {/* Job Summary */}
+      
         <div className="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden mb-10">
           <div className="p-8 bg-gradient-to-r from-slate-50 to-white border-b border-slate-200">
             <h1 className="text-3xl font-bold text-slate-900 mb-3">
@@ -156,7 +156,7 @@ export default function ApplyJob() {
             <h2 className="text-2xl font-semibold text-slate-800 mb-6">Upload Your Documents</h2>
 
             <form onSubmit={handleSubmit} className="space-y-8">
-              {/* Resume - Required */}
+            
               <div>
                 <label className="block text-lg font-medium text-slate-700 mb-3">
                   Resume <span className="text-red-600">*</span>
@@ -185,7 +185,7 @@ export default function ApplyJob() {
                 </div>
               </div>
 
-              {/* Cover Letter - Optional */}
+             
               <div>
                 <label className="block text-lg font-medium text-slate-700 mb-3">
                   Cover Letter (optional)
@@ -214,7 +214,7 @@ export default function ApplyJob() {
                 </div>
               </div>
 
-              {/* Submit */}
+             
               <div className="pt-6">
                 <button
                   type="submit"

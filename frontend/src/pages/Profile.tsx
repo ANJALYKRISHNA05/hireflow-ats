@@ -1,93 +1,216 @@
-import { useSelector } from 'react-redux';
-import type { RootState } from '../store';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import type { RootState } from "../store";
+import api from "../api/api";
+import toast from "react-hot-toast";
+import { User, Briefcase, FileText, Calendar, Mail, Shield, ArrowLeft } from "lucide-react";
+import { formatDistanceToNow } from "date-fns";
+
+interface ProfileData {
+  name: string;
+  email: string;
+  role: "candidate" | "recruiter";
+  createdAt?: string;
+  applicationsCount?: number;
+  jobsPostedCount?: number;
+}
 
 export default function Profile() {
-  const { user } = useSelector((state: RootState) => state.auth);
+  const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
   const navigate = useNavigate();
+  const [profile, setProfile] = useState<ProfileData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  if (!user) {
-    return <div>Loading...</div>; 
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate("/login");
+      return;
+    }
+
+    const fetchProfile = async () => {
+      try {
+        setLoading(true);
+        const res = await api.get("/users/current");
+        const data = res.data.user;
+
+        let applicationsCount = 0;
+        let jobsPostedCount = 0;
+
+        if (data.role === "candidate") {
+          try {
+            const appsRes = await api.get("/applications/my");
+            applicationsCount = appsRes.data.applications?.length || 0;
+          } catch {}
+        } else if (data.role === "recruiter") {
+          try {
+            const jobsRes = await api.get("/jobs/my");
+            jobsPostedCount = jobsRes.data.jobs?.length || 0;
+          } catch {}
+        }
+
+        setProfile({
+          ...data,
+          createdAt: data.createdAt || new Date().toISOString(),
+          applicationsCount,
+          jobsPostedCount,
+        });
+      } catch (err: any) {
+        const msg = err.response?.data?.message || "Failed to load profile";
+        setError(msg);
+        toast.error(msg);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, [isAuthenticated, navigate]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-slate-600">Loading profile...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !profile) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="text-center max-w-md px-6">
+          <h2 className="text-2xl font-semibold text-slate-800 mb-3">Something went wrong</h2>
+          <p className="text-slate-600 mb-6">{error || "Could not load profile."}</p>
+          <button
+            onClick={() => navigate(-1)}
+            className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
+          >
+            Go Back
+          </button>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-10 px-4">
+    <div className="min-h-screen bg-slate-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-3xl mx-auto">
-     
-        <div className="bg-white rounded-xl shadow border overflow-hidden">
-          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-8 py-10 text-white">
-            <div className="flex items-center gap-6">
-              <div className="w-20 h-20 rounded-full bg-white/30 flex items-center justify-center text-4xl font-bold">
-                {user.name?.[0]?.toUpperCase() || user.email[0].toUpperCase()}
+        {/* Back Button */}
+        <button
+          onClick={() => navigate(-1)}
+          className="mb-6 inline-flex items-center gap-2 text-slate-600 hover:text-indigo-700 transition"
+        >
+          <ArrowLeft size={18} />
+          Back
+        </button>
+
+        {/* Profile Header Card */}
+        <div className="bg-white rounded-2xl shadow-lg border border-slate-100 overflow-hidden">
+          {/* Top Section - Compact & Elegant */}
+          <div className="px-8 pt-10 pb-8 bg-gradient-to-b from-slate-50 to-white text-center">
+            <div className="inline-block relative mb-6">
+              <div className="w-28 h-28 rounded-full bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center text-5xl font-semibold text-indigo-700 shadow-md border-4 border-white">
+                {profile.name?.[0]?.toUpperCase() || profile.email[0].toUpperCase()}
               </div>
-              <div>
-                <h1 className="text-3xl font-bold">{user.name || 'User'}</h1>
-                <p className="mt-1 opacity-90">{user.email}</p>
-                <span className="inline-block mt-3 px-4 py-1 bg-white/20 rounded-full text-sm font-medium capitalize">
-                  {user.role}
-                </span>
-              </div>
+              <span className="absolute -bottom-1 -right-1 px-3 py-1 bg-indigo-600 text-white text-xs font-medium rounded-full border-2 border-white capitalize">
+                {profile.role}
+              </span>
             </div>
+
+            <h1 className="text-3xl font-semibold text-slate-900 mb-2">
+              {profile.name || "Your Profile"}
+            </h1>
+            <p className="text-slate-600 flex items-center justify-center gap-2">
+              <Mail size={16} className="text-slate-500" />
+              {profile.email}
+            </p>
           </div>
 
-          
-          <div className="p-8">
-            <h2 className="text-2xl font-semibold mb-6">Profile Information</h2>
+          {/* Main Info */}
+          <div className="px-8 pb-10">
+            <div className="grid md:grid-cols-2 gap-8">
+              {/* Account Details */}
+              <div className="space-y-6">
+                <h2 className="text-xl font-semibold text-slate-800 flex items-center gap-2">
+                  <User size={20} className="text-indigo-600" />
+                  Account Details
+                </h2>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="bg-gray-50 p-6 rounded-xl border">
-                <h3 className="font-medium text-gray-700 mb-2">Full Name</h3>
-                <p className="text-lg">{user.name || 'Not set'}</p>
+                <div className="space-y-4 bg-slate-50/50 p-6 rounded-xl border border-slate-100">
+                  <div className="flex items-center gap-3">
+                    <Mail size={18} className="text-slate-500" />
+                    <div>
+                      <p className="text-xs text-slate-500">Email</p>
+                      <p className="font-medium text-slate-800">{profile.email}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <Calendar size={18} className="text-slate-500" />
+                    <div>
+                      <p className="text-xs text-slate-500">Joined</p>
+                      <p className="font-medium text-slate-800">
+                        {formatDistanceToNow(new Date(profile.createdAt!), { addSuffix: true })}
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              <div className="bg-gray-50 p-6 rounded-xl border">
-                <h3 className="font-medium text-gray-700 mb-2">Email</h3>
-                <p className="text-lg break-all">{user.email}</p>
-              </div>
+              {/* Stats - Elegant Circular Counters */}
+              <div className="space-y-6">
+                <h2 className="text-xl font-semibold text-slate-800 flex items-center gap-2">
+                  {profile.role === "candidate" ? (
+                    <FileText size={20} className="text-indigo-600" />
+                  ) : (
+                    <Briefcase size={20} className="text-indigo-600" />
+                  )}
+                  {profile.role === "candidate" ? "Your Activity" : "Recruiting Stats"}
+                </h2>
 
-              <div className="bg-gray-50 p-6 rounded-xl border">
-                <h3 className="font-medium text-gray-700 mb-2">Account Type</h3>
-                <p className="text-lg capitalize">{user.role}</p>
-              </div>
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="text-center">
+                    <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-indigo-50 to-purple-50 flex items-center justify-center shadow-inner border border-indigo-100">
+                      <span className="text-3xl font-bold text-indigo-700">
+                        {profile.role === "candidate"
+                          ? profile.applicationsCount || 0
+                          : profile.jobsPostedCount || 0}
+                      </span>
+                    </div>
+                    <p className="mt-3 text-sm text-slate-600 font-medium">
+                      {profile.role === "candidate" ? "Applications" : "Jobs Posted"}
+                    </p>
+                  </div>
 
-              <div className="bg-gray-50 p-6 rounded-xl border">
-                <h3 className="font-medium text-gray-700 mb-2">Member Since</h3>
-                <p className="text-lg">— (to be added later)</p>
+                  {/* Future Stat Placeholder */}
+                  <div className="text-center opacity-70">
+                    <div className="w-20 h-20 mx-auto rounded-full bg-slate-100 flex items-center justify-center shadow-inner border border-slate-200">
+                      <span className="text-3xl font-bold text-slate-400">—</span>
+                    </div>
+                    <p className="mt-3 text-sm text-slate-500">More soon</p>
+                  </div>
+                </div>
               </div>
             </div>
 
-           
-            {user.role === 'candidate' && (
-              <div className="mt-10 pt-8 border-t">
-                <h2 className="text-xl font-semibold mb-4">Candidate Information</h2>
-                <p className="text-gray-600">
-                  This section will show your resume, skills, experience, etc. 
-                </p>
-              </div>
-            )}
-
-            {user.role === 'recruiter' && (
-              <div className="mt-10 pt-8 border-t">
-                <h2 className="text-xl font-semibold mb-4">Recruiter Information</h2>
-                <p className="text-gray-600">
-                  Company name, website, jobs posted, etc.
-                </p>
-              </div>
-            )}
-
-            {user.role === 'admin' && (
-              <div className="mt-10 pt-8 border-t">
-                <h2 className="text-xl font-semibold mb-4">Admin Dashboard</h2>
-                <p className="text-gray-600">
-                  User management, system stats, etc. 
-                </p>
-              </div>
-            )}
-
-            <div className="mt-10 flex gap-4">
+            {/* Action Buttons */}
+            <div className="mt-12 flex flex-col sm:flex-row gap-4 justify-center">
               <button
-                onClick={() => navigate('/dashboard')}
-                className="px-6 py-3 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition"
+                onClick={() => toast("Edit profile coming soon!", { icon: "✨" })}
+                className="px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition shadow-sm hover:shadow-md flex items-center justify-center gap-2"
+              >
+                Edit Profile
+              </button>
+
+              <button
+                onClick={() =>
+                  navigate(profile.role === "candidate" ? "/candidate/dashboard" : "/recruiter/dashboard")
+                }
+                className="px-8 py-3 bg-white border border-slate-300 hover:border-slate-400 text-slate-700 font-medium rounded-lg transition flex items-center justify-center gap-2"
               >
                 Back to Dashboard
               </button>

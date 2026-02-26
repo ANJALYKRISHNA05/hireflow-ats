@@ -1,8 +1,9 @@
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "../../store";
-import { logout } from '../../features/auth/authSlice'
+import { logout } from '../../features/auth/authSlice';
 import { useNavigate } from "react-router-dom";
-import { LogOut, PlusCircle, Briefcase } from "lucide-react";
+import { LogOut, PlusCircle, Briefcase, User } from "lucide-react"; // ← added User
+import toast from "react-hot-toast";
 
 export default function RecruiterDashboard() {
   const { user } = useSelector((state: RootState) => state.auth);
@@ -11,7 +12,7 @@ export default function RecruiterDashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-      {/* Hero / Welcome Section */}
+      {/* Welcome Hero Section */}
       <div className="bg-gradient-to-r from-purple-600 to-indigo-700 text-white">
         <div className="container mx-auto px-6 py-12 md:py-16">
           <div className="flex flex-col md:flex-row items-center justify-between gap-8">
@@ -36,8 +37,9 @@ export default function RecruiterDashboard() {
           Get Started
         </h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
-          {/* Post a New Job */}
+        {/* 4-Card Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+          {/* 1. Post a New Job */}
           <div
             onClick={() => navigate("/post-job")}
             className="bg-white rounded-2xl shadow-md p-8 cursor-pointer hover:shadow-xl transition-all hover:-translate-y-1 border border-slate-200"
@@ -55,7 +57,7 @@ export default function RecruiterDashboard() {
             </p>
           </div>
 
-          
+          {/* 2. My Posted Jobs */}
           <div
             onClick={() => navigate("/my-jobs")}
             className="bg-white rounded-2xl shadow-md p-8 cursor-pointer hover:shadow-xl transition-all hover:-translate-y-1 border border-slate-200"
@@ -73,7 +75,25 @@ export default function RecruiterDashboard() {
             </p>
           </div>
 
-          
+          {/* 3. My Profile (new) */}
+          <div
+            onClick={() => navigate("/profile")}
+            className="bg-white rounded-2xl shadow-md p-8 cursor-pointer hover:shadow-xl transition-all hover:-translate-y-1 border border-slate-200"
+          >
+            <div className="flex items-center gap-4 mb-4">
+              <div className="p-3 bg-green-100 rounded-lg">
+                <User className="w-8 h-8 text-green-600" />
+              </div>
+              <h3 className="text-xl font-semibold text-slate-800">
+                My Profile
+              </h3>
+            </div>
+            <p className="text-slate-600">
+              View and manage your account details
+            </p>
+          </div>
+
+          {/* 4. Analytics (placeholder - coming soon) */}
           <div className="bg-white/60 rounded-2xl shadow-md p-8 border border-slate-200 opacity-70">
             <div className="flex items-center gap-4 mb-4">
               <div className="p-3 bg-gray-100 rounded-lg">
@@ -97,12 +117,12 @@ export default function RecruiterDashboard() {
           </div>
         </div>
 
-     
+       
         <div className="mt-12 text-center">
           <button
             onClick={() => {
-              dispatch(logout());           
-              navigate("/login");          
+              dispatch(logout());
+              navigate("/login");
             }}
             className="flex items-center justify-center gap-2 px-8 py-3 bg-red-50 hover:bg-red-100 text-red-700 font-medium rounded-lg transition mx-auto"
           >

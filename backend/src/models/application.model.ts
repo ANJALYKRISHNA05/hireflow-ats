@@ -1,19 +1,19 @@
-import mongoose, { Schema, Document, Types } from 'mongoose';
+import mongoose, { Schema, Document, Types } from "mongoose";
 
 export enum ApplicationStatus {
-  APPLIED = 'applied',
-  SHORTLISTED = 'shortlisted',
-  INTERVIEWED = 'interviewed',
-  REJECTED = 'rejected',
-  HIRED = 'hired',
+  APPLIED = "applied",
+  SHORTLISTED = "shortlisted",
+  INTERVIEWED = "interviewed",
+  REJECTED = "rejected",
+  HIRED = "hired",
 }
 
 export interface IApplication extends Document {
   job: Types.ObjectId;
   candidate: Types.ObjectId;
   status: ApplicationStatus;
-  resumeUrl: string;          
-  coverLetterUrl?: string;   
+  resumeUrl: string;
+  coverLetterUrl?: string;
   appliedAt: Date;
   updatedAt: Date;
 }
@@ -22,13 +22,13 @@ const applicationSchema = new Schema<IApplication>(
   {
     job: {
       type: Schema.Types.ObjectId,
-      ref: 'Job',
-      required: [true, 'Job is required'],
+      ref: "Job",
+      required: [true, "Job is required"],
     },
     candidate: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
-      required: [true, 'Candidate is required'],
+      ref: "User",
+      required: [true, "Candidate is required"],
     },
     status: {
       type: String,
@@ -37,7 +37,7 @@ const applicationSchema = new Schema<IApplication>(
     },
     resumeUrl: {
       type: String,
-      required: [true, 'Resume is required'],
+      required: [true, "Resume is required"],
     },
     coverLetterUrl: {
       type: String,
@@ -46,9 +46,12 @@ const applicationSchema = new Schema<IApplication>(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 applicationSchema.index({ job: 1, candidate: 1 }, { unique: true });
 
-export const Application = mongoose.model<IApplication>('Application', applicationSchema);
+export const Application = mongoose.model<IApplication>(
+  "Application",
+  applicationSchema,
+);

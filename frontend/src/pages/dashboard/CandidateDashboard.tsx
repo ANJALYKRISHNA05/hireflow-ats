@@ -1,8 +1,8 @@
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "../../store";
-import { logout } from '../../features/auth/authSlice'
+import { logout } from "../../features/auth/authSlice";
 import { useNavigate } from "react-router-dom";
-import { LogOut, Briefcase, FileText } from "lucide-react";
+import { LogOut, Briefcase, FileText, User } from "lucide-react";
 import toast from "react-hot-toast";
 
 export default function CandidateDashboard() {
@@ -11,75 +11,88 @@ export default function CandidateDashboard() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-      {/* Hero / Welcome Section */}
-      <div className="bg-gradient-to-r from-indigo-600 to-indigo-800 text-white">
-        <div className="container mx-auto px-6 py-12 md:py-16">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-8">
+    <div className="min-h-screen bg-slate-50/50">
+      {/* Header - Elegant & Subtle */}
+      <header className="bg-gradient-to-br from-indigo-800 via-indigo-900 to-indigo-950 text-white">
+        <div className="max-w-5xl mx-auto px-6 py-10 md:py-12">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <div>
-              <h1 className="text-3xl md:text-4xl font-bold">
-                Welcome back, {user?.name || "Candidate"}
+              <h1 className="text-2xl md:text-3xl font-semibold tracking-tight">
+                Welcome back, {user?.name?.split(" ")[0] || "Candidate"}
               </h1>
-              <p className="mt-3 text-indigo-100 text-lg">
-                Find your next career opportunity
+              <p className="mt-2 text-indigo-200/80 text-base font-light">
+                Find opportunities that match your skills and goals
               </p>
             </div>
-            <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-white/20 flex items-center justify-center text-4xl font-bold">
+            <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-white/10 flex items-center justify-center text-3xl font-semibold border border-white/20 shadow-inner">
               {user?.name?.[0]?.toUpperCase() || "C"}
             </div>
           </div>
         </div>
-      </div>
+      </header>
 
       {/* Main Content */}
-      <div className="container mx-auto px-6 py-12">
-        <h2 className="text-2xl font-bold text-slate-800 mb-8 text-center md:text-left">
-          What would you like to do?
+      <main className="max-w-5xl mx-auto px-6 py-10 md:py-12">
+        <h2 className="text-xl md:text-2xl font-medium text-slate-800 mb-8 text-center md:text-left">
+          Quick Actions
         </h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
+        {/* 4-Card Grid - Elegant & Minimal */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {/* Browse Jobs */}
           <div
             onClick={() => navigate("/jobs")}
-            className="bg-white rounded-2xl shadow-md p-8 cursor-pointer hover:shadow-xl transition-all hover:-translate-y-1 border border-slate-200"
+            className="group bg-white rounded-xl shadow-sm border border-slate-200/70 p-6 hover:shadow-md hover:border-indigo-200/70 transition-all duration-300 cursor-pointer"
           >
             <div className="flex items-center gap-4 mb-4">
-              <div className="p-3 bg-indigo-100 rounded-lg">
-                <Briefcase className="w-8 h-8 text-indigo-600" />
+              <div className="p-3 bg-indigo-50/70 rounded-lg group-hover:bg-indigo-100/70 transition-colors">
+                <Briefcase className="w-7 h-7 text-indigo-700" />
               </div>
-              <h3 className="text-xl font-semibold text-slate-800">
-                Browse Jobs
-              </h3>
+              <h3 className="text-lg font-medium text-slate-800">Browse Jobs</h3>
             </div>
-            <p className="text-slate-600">
-              Explore thousands of open positions matching your skills
+            <p className="text-slate-600 text-sm leading-relaxed">
+              Discover open roles tailored to your experience
             </p>
           </div>
 
           {/* My Applications */}
           <div
             onClick={() => navigate("/my-applications")}
-            className="bg-white rounded-2xl shadow-md p-8 cursor-pointer hover:shadow-xl transition-all hover:-translate-y-1 border border-slate-200"
+            className="group bg-white rounded-xl shadow-sm border border-slate-200/70 p-6 hover:shadow-md hover:border-blue-200/70 transition-all duration-300 cursor-pointer"
           >
             <div className="flex items-center gap-4 mb-4">
-              <div className="p-3 bg-blue-100 rounded-lg">
-                <FileText className="w-8 h-8 text-blue-600" />
+              <div className="p-3 bg-blue-50/70 rounded-lg group-hover:bg-blue-100/70 transition-colors">
+                <FileText className="w-7 h-7 text-blue-700" />
               </div>
-              <h3 className="text-xl font-semibold text-slate-800">
-                My Applications
-              </h3>
+              <h3 className="text-lg font-medium text-slate-800">My Applications</h3>
             </div>
-            <p className="text-slate-600">
-              Track the status of all your job applications
+            <p className="text-slate-600 text-sm leading-relaxed">
+              Track progress and status of your applications
             </p>
           </div>
 
-          {/* Saved Jobs (placeholder) */}
-          <div className="bg-white/60 rounded-2xl shadow-md p-8 border border-slate-200 opacity-70">
+          {/* My Profile */}
+          <div
+            onClick={() => navigate("/profile")}
+            className="group bg-white rounded-xl shadow-sm border border-slate-200/70 p-6 hover:shadow-md hover:border-green-200/70 transition-all duration-300 cursor-pointer"
+          >
             <div className="flex items-center gap-4 mb-4">
-              <div className="p-3 bg-gray-100 rounded-lg">
+              <div className="p-3 bg-green-50/70 rounded-lg group-hover:bg-green-100/70 transition-colors">
+                <User className="w-7 h-7 text-green-700" />
+              </div>
+              <h3 className="text-lg font-medium text-slate-800">My Profile</h3>
+            </div>
+            <p className="text-slate-600 text-sm leading-relaxed">
+              Manage your information and preferences
+            </p>
+          </div>
+
+          {/* Saved Jobs - Coming Soon */}
+          <div className="bg-slate-50/60 rounded-xl shadow-sm border border-slate-200/70 p-6 opacity-80">
+            <div className="flex items-center gap-4 mb-4">
+              <div className="p-3 bg-gray-100/70 rounded-lg">
                 <svg
-                  className="w-8 h-8 text-gray-500"
+                  className="w-7 h-7 text-slate-500"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -88,35 +101,31 @@ export default function CandidateDashboard() {
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth={2}
-                    d="M5 13l4 4L19 7"
+                    d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
                   />
                 </svg>
               </div>
-              <h3 className="text-xl font-semibold text-slate-600">
-                Saved Jobs
-              </h3>
+              <h3 className="text-lg font-medium text-slate-700">Saved Jobs</h3>
             </div>
-            <p className="text-slate-500">Coming soon</p>
+            <p className="text-slate-500 text-sm">Feature coming soon</p>
           </div>
         </div>
 
-        {/* Sign Out Button */}
+        {/* Logout - Elegant dark style */}
         <div className="mt-12 text-center">
           <button
             onClick={() => {
-              toast.success("Logged out successfully");
+              toast.success("Logged out successfully", { duration: 2000 });
               dispatch(logout());
-              setTimeout(() => {
-                navigate("/login"); 
-              }, 300); 
+              setTimeout(() => navigate("/login"), 600);
             }}
-            className="flex items-center justify-center gap-2 px-8 py-3 bg-red-50 hover:bg-red-100 text-red-700 font-medium rounded-lg transition mx-auto"
+            className="inline-flex items-center gap-2 px-8 py-3 bg-slate-800 hover:bg-slate-900 text-white font-medium rounded-lg transition-all duration-300 shadow-sm hover:shadow-md"
           >
             <LogOut size={18} />
             Sign Out
           </button>
         </div>
-      </div>
+      </main>
     </div>
   );
 }

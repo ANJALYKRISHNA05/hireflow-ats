@@ -50,7 +50,6 @@ export const requestRegisterOtp = async (req: Request, res: Response) => {
   }
 };
 
-
 export const register = async (req: Request, res: Response) => {
   try {
     const dto = plainToClass(RegisterDto, req.body);
@@ -58,7 +57,7 @@ export const register = async (req: Request, res: Response) => {
 
     if (errors.length > 0) {
       const errorMessages = errors.map(
-        (err) => err.constraints?.[Object.keys(err.constraints)[0]]
+        (err) => err.constraints?.[Object.keys(err.constraints)[0]],
       );
 
       return res.status(StatusCodes.BAD_REQUEST).json({
@@ -68,28 +67,27 @@ export const register = async (req: Request, res: Response) => {
       });
     }
 
-   
     await otpService.verifyOtp(dto.email, dto.otp);
 
     const result = await authService.register(
       dto.name,
       dto.email,
       dto.password,
-      dto.role || UserRole.CANDIDATE
+      dto.role || UserRole.CANDIDATE,
     );
 
-return res.status(StatusCodes.CREATED).json({
-  success: true,
-  message: Messages.REGISTER_SUCCESS,
-  accessToken: result.accessToken,
-  refreshToken: result.refreshToken,
-  user: {
-    id: result.user._id.toString(),
-    name: result.user.name,
-    email: result.user.email,
-    role: result.user.role.toLowerCase(),  
-  },
-});
+    return res.status(StatusCodes.CREATED).json({
+      success: true,
+      message: Messages.REGISTER_SUCCESS,
+      accessToken: result.accessToken,
+      refreshToken: result.refreshToken,
+      user: {
+        id: result.user._id.toString(),
+        name: result.user.name,
+        email: result.user.email,
+        role: result.user.role.toLowerCase(),
+      },
+    });
   } catch (error: unknown) {
     return res.status(StatusCodes.BAD_REQUEST).json({
       success: false,
@@ -98,7 +96,6 @@ return res.status(StatusCodes.CREATED).json({
   }
 };
 
-
 export const login = async (req: Request, res: Response) => {
   try {
     const dto = plainToClass(LoginDto, req.body);
@@ -106,7 +103,7 @@ export const login = async (req: Request, res: Response) => {
 
     if (errors.length > 0) {
       const errorMessages = errors.map(
-        (err) => err.constraints?.[Object.keys(err.constraints)[0]]
+        (err) => err.constraints?.[Object.keys(err.constraints)[0]],
       );
 
       return res.status(StatusCodes.BAD_REQUEST).json({
@@ -118,18 +115,18 @@ export const login = async (req: Request, res: Response) => {
 
     const result = await authService.login(dto.email, dto.password);
 
-return res.status(StatusCodes.OK).json({
-  success: true,
-  message: Messages.LOGIN_SUCCESS,
-  accessToken: result.accessToken,
-  refreshToken: result.refreshToken,
-  user: {
-    id: result.user._id.toString(),
-    name: result.user.name,
-    email: result.user.email,
-    role: result.user.role.toLowerCase(),   
-  },
-});
+    return res.status(StatusCodes.OK).json({
+      success: true,
+      message: Messages.LOGIN_SUCCESS,
+      accessToken: result.accessToken,
+      refreshToken: result.refreshToken,
+      user: {
+        id: result.user._id.toString(),
+        name: result.user.name,
+        email: result.user.email,
+        role: result.user.role.toLowerCase(),
+      },
+    });
   } catch (error: unknown) {
     return res.status(StatusCodes.UNAUTHORIZED).json({
       success: false,
@@ -138,13 +135,9 @@ return res.status(StatusCodes.OK).json({
   }
 };
 
-
 export const logout = async (req: Request, res: Response) => {
   try {
-    const userId = (req
-
-      
-    ).user.id;
+    const userId = req.user.id;
     await authService.logout(userId);
     res.status(StatusCodes.OK).json({
       success: true,
@@ -154,7 +147,7 @@ export const logout = async (req: Request, res: Response) => {
     console.error("Logout error:", error);
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       success: false,
-      message:getErrorMessage(error),
+      message: getErrorMessage(error),
     });
   }
 };
@@ -166,7 +159,7 @@ export const refresh = async (req: Request, res: Response) => {
     if (!refreshToken) {
       return res.status(StatusCodes.BAD_REQUEST).json({
         success: false,
-        message:getErrorMessage(Error),
+        message: getErrorMessage(Error),
       });
     }
 
@@ -177,16 +170,13 @@ export const refresh = async (req: Request, res: Response) => {
       accessToken: result.accessToken,
       refreshToken: result.refreshToken,
     });
-  } catch (error:unknown) {
+  } catch (error: unknown) {
     res.status(StatusCodes.UNAUTHORIZED).json({
       success: false,
-      message:getErrorMessage(error) || "Invalid refresh token",
+      message: getErrorMessage(error) || "Invalid refresh token",
     });
   }
 };
-
-
-
 
 export const requestPasswordResetOtp = async (req: Request, res: Response) => {
   try {
@@ -201,7 +191,6 @@ export const requestPasswordResetOtp = async (req: Request, res: Response) => {
 
     await authService.requestPasswordResetOtp(email);
 
-   
     return res.status(StatusCodes.OK).json({
       success: true,
       message: "If your email is registered, you will receive an OTP shortly.",
@@ -231,7 +220,6 @@ export const resetPassword = async (req: Request, res: Response) => {
         message: "Password must be at least 6 characters",
       });
     }
-
 
     await authService.resetPasswordWithOtp(email, otp, newPassword);
 

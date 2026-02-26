@@ -18,10 +18,8 @@ export class UserRepository implements IUserRepository {
 
   async update(id: string, updateData: Partial<IUser>): Promise<IUser | null> {
     return await User.findByIdAndUpdate(id, updateData, {
-      new: true,           
-      runValidators: true  
+      new: true,
+      runValidators: true,
     });
   }
-
-  
 }

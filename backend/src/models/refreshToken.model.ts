@@ -1,5 +1,5 @@
-import mongoose, { Schema, Document } from 'mongoose';
-import { Types } from 'mongoose';
+import mongoose, { Schema, Document } from "mongoose";
+import { Types } from "mongoose";
 
 export interface IRefreshToken extends Document {
   token: string;
@@ -16,7 +16,7 @@ const refreshTokenSchema = new Schema<IRefreshToken>(
     },
     user: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
+      ref: "User",
       required: true,
     },
     expiresAt: {
@@ -26,9 +26,12 @@ const refreshTokenSchema = new Schema<IRefreshToken>(
   },
   {
     timestamps: { createdAt: true, updatedAt: false },
-  }
+  },
 );
 
 refreshTokenSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
-export const RefreshToken = mongoose.model<IRefreshToken>('RefreshToken', refreshTokenSchema);
+export const RefreshToken = mongoose.model<IRefreshToken>(
+  "RefreshToken",
+  refreshTokenSchema,
+);

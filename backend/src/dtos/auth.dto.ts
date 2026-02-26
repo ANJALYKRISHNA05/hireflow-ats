@@ -22,7 +22,6 @@ export class RegisterDto {
   @IsEnum(UserRole)
   role!: UserRole;
 
-  
   @IsString()
   @IsNotEmpty()
   otp!: string;

@@ -1,11 +1,10 @@
-// src/api/jobs.ts
 import api from "./api";
 import type { Job } from "../types/job";
 
 export const getJobs = async (): Promise<Job[]> => {
   try {
     const response = await api.get("/jobs");
-    return response.data.jobs || []; 
+    return response.data.jobs || [];
   } catch (error: any) {
     console.error("Failed to fetch jobs:", error);
     throw new Error(error.response?.data?.message || "Could not load jobs");

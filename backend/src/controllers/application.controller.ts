@@ -1,27 +1,27 @@
-import { Request, Response } from 'express';
-import { container } from '../container';
-import { ApplicationService } from '../services/application.service';
-import { ApplyDto, UpdateApplicationStatusDto } from '../dtos/application.dto';
-import { plainToClass } from 'class-transformer';
-import { validate } from 'class-validator';
-import { StatusCodes } from '../constants/statusCodes';
-import { Messages } from '../constants/messages';
-import { getErrorMessage } from '../utils/error.util';
+import { Request, Response } from "express";
+import { container } from "../container";
+import { ApplicationService } from "../services/application.service";
+import { ApplyDto, UpdateApplicationStatusDto } from "../dtos/application.dto";
+import { plainToClass } from "class-transformer";
+import { validate } from "class-validator";
+import { StatusCodes } from "../constants/statusCodes";
+import { Messages } from "../constants/messages";
+import { getErrorMessage } from "../utils/error.util";
 
-const applicationService = container.get<ApplicationService>(ApplicationService);
+const applicationService =
+  container.get<ApplicationService>(ApplicationService);
 
 export const applyToJob = async (req: Request, res: Response) => {
   try {
-    const user = req.user
+    const user = req.user;
 
-    
     const dto = plainToClass(ApplyDto, req.body);
     const errors = await validate(dto);
     if (errors.length > 0) {
       return res.status(StatusCodes.BAD_REQUEST).json({
         success: false,
-        message: 'Validation failed',
-        errors: errors.map(err => Object.values(err.constraints || {})[0]),
+        message: "Validation failed",
+        errors: errors.map((err) => Object.values(err.constraints || {})[0]),
       });
     }
 
@@ -36,20 +36,20 @@ export const applyToJob = async (req: Request, res: Response) => {
 
     return res.status(StatusCodes.CREATED).json({
       success: true,
-      message: 'Application submitted successfully',
+      message: "Application submitted successfully",
       application,
     });
   } catch (error: unknown) {
     return res.status(StatusCodes.BAD_REQUEST).json({
       success: false,
-      message: getErrorMessage(error)|| Messages.SERVER_ERROR,
+      message: getErrorMessage(error) || Messages.SERVER_ERROR,
     });
   }
 };
 
 export const getMyApplications = async (req: Request, res: Response) => {
   try {
-    const user = (req).user;
+    const user = req.user;
 
     const applications = await applicationService.getMyApplications(user.id);
 
@@ -67,30 +67,30 @@ export const getMyApplications = async (req: Request, res: Response) => {
 
 export const getApplicationsForJob = async (req: Request, res: Response) => {
   try {
-    const user = (req).user;
+    const user = req.user;
     const { jobId } = req.params;
 
     const applications = await applicationService.getApplicationsForJob(
       user.id,
       user.role,
-      jobId
+      jobId,
     );
 
     return res.status(StatusCodes.OK).json({
       success: true,
       applications,
     });
-  } catch (error:unknown) {
+  } catch (error: unknown) {
     return res.status(StatusCodes.BAD_REQUEST).json({
       success: false,
-      message: getErrorMessage(error)|| Messages.SERVER_ERROR,
+      message: getErrorMessage(error) || Messages.SERVER_ERROR,
     });
   }
 };
 
 export const updateApplicationStatus = async (req: Request, res: Response) => {
   try {
-    const user = (req).user;
+    const user = req.user;
     const { id } = req.params;
 
     const dto = plainToClass(UpdateApplicationStatusDto, req.body);
@@ -98,8 +98,8 @@ export const updateApplicationStatus = async (req: Request, res: Response) => {
     if (errors.length > 0) {
       return res.status(StatusCodes.BAD_REQUEST).json({
         success: false,
-        message: 'Validation failed',
-        errors: errors.map(err => Object.values(err.constraints || {})[0]),
+        message: "Validation failed",
+        errors: errors.map((err) => Object.values(err.constraints || {})[0]),
       });
     }
 
@@ -108,14 +108,14 @@ export const updateApplicationStatus = async (req: Request, res: Response) => {
       user.role,
       id,
       dto.status,
-      dto.notes
+      dto.notes,
     );
 
     return res.status(StatusCodes.OK).json({
       success: true,
       application,
     });
-  } catch (error:unknown) {
+  } catch (error: unknown) {
     return res.status(StatusCodes.BAD_REQUEST).json({
       success: false,
       message: getErrorMessage(error) || Messages.SERVER_ERROR,

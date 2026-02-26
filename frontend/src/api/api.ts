@@ -1,11 +1,11 @@
-import axios from 'axios';
-import { store } from '../store';
-import { logout, loginSuccess } from '../features/auth/authSlice';
+import axios from "axios";
+import { store } from "../store";
+import { logout, loginSuccess } from "../features/auth/authSlice";
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
+  baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000/api",
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 
@@ -22,14 +22,9 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
     const status = error.response?.status;
-    const url = originalRequest?.url || '';
+    const url = originalRequest?.url || "";
 
-   
-    if (
-      status === 401 &&
-      !url.includes('/auth/') &&
-      !originalRequest._retry
-    ) {
+    if (status === 401 && !url.includes("/auth/") && !originalRequest._retry) {
       originalRequest._retry = true;
 
       try {
@@ -40,8 +35,8 @@ api.interceptors.response.use(
         }
 
         const res = await axios.post(
-          `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/auth/refresh`,
-          { refreshToken }
+          `${import.meta.env.VITE_API_URL || "http://localhost:5000/api"}/auth/refresh`,
+          { refreshToken },
         );
 
         const { accessToken, refreshToken: newRefreshToken } = res.data;
@@ -53,7 +48,7 @@ api.interceptors.response.use(
               accessToken,
               refreshToken: newRefreshToken,
               user: currentUser,
-            })
+            }),
           );
         }
 
@@ -61,13 +56,13 @@ api.interceptors.response.use(
         return api(originalRequest);
       } catch (refreshError) {
         store.dispatch(logout());
-        window.location.href = '/login';
+        window.location.href = "/login";
         return Promise.reject(refreshError);
       }
     }
 
     return Promise.reject(error);
-  }
+  },
 );
 
 export default api;

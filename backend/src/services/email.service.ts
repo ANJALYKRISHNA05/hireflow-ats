@@ -1,14 +1,14 @@
-import dotenv from 'dotenv';
+import dotenv from "dotenv";
 dotenv.config();
 
-import nodemailer from 'nodemailer';
+import nodemailer from "nodemailer";
 
 export class EmailService {
   private transporter;
 
   constructor() {
     this.transporter = nodemailer.createTransport({
-      service: 'gmail',
+      service: "gmail",
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
@@ -20,7 +20,7 @@ export class EmailService {
     const mailOptions = {
       from: `"HireFlow" <${process.env.EMAIL_USER}>`,
       to: email,
-      subject: 'Your HireFlow OTP Verification Code',
+      subject: "Your HireFlow OTP Verification Code",
       html: `
         <div style="font-family: Arial, sans-serif;">
           <h2>Email Verification</h2>
