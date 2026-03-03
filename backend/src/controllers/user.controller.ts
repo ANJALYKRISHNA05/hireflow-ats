@@ -31,3 +31,24 @@ export const getCurrentUser = async (req: Request, res: Response) => {
     });
   }
 };
+
+
+export const updateCurrentUser = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user.id;
+    const updateData = req.body; 
+
+    const userService = container.get<UserService>('UserService');
+    const updatedUser = await userService.updateCurrentUser(userId, updateData);
+
+    return res.status(StatusCodes.OK).json({
+      success: true,
+      user: updatedUser,
+    });
+  } catch (error: unknown) {
+    return res.status(StatusCodes.BAD_REQUEST).json({
+      success: false,
+      message: getErrorMessage(error) || Messages.SERVER_ERROR,
+    });
+  }
+};

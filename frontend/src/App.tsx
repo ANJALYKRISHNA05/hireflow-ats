@@ -15,6 +15,7 @@ import ApplyJob from "./pages/ApplyJob";
 import PostJob from "./pages/recruiter/PostJob";
 import MyJobs from "./pages/recruiter/MyJobs";
 import JobApplicants from "./pages/recruiter/JobApplicants";
+import MyApplications from "./pages/MyApplications";        
 export default function App() {
   return (
     <BrowserRouter>
@@ -22,7 +23,14 @@ export default function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/verify-otp" element={<VerifyOtp />} />
-
+        <Route
+          path="/my-applications"
+          element={
+            <ProtectedRoute>
+              <MyApplications />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/dashboard"
           element={

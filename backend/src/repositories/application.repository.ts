@@ -10,15 +10,23 @@ export class ApplicationRepository implements IApplicationRepository {
   }
 
   async findById(id: string): Promise<IApplication | null> {
-    return await Application.findById(id);
+    // Optional: populate job here too if you ever fetch single application with full job data
+    return await Application.findById(id).populate('job', 'title companyName location jobType');
   }
 
   async findByCandidate(userId: string): Promise<IApplication[]> {
-    return await Application.find({ candidate: userId });
+    // ────────────────────────────────────────────────
+    // THIS IS THE MOST IMPORTANT CHANGE
+    // ────────────────────────────────────────────────
+    return await Application.find({ candidate: userId })
+      .populate('job', 'title companyName location jobType');   // ← Add this line!
   }
 
   async findByJob(jobId: string): Promise<IApplication[]> {
-    return await Application.find({ job: jobId });
+    // Also populate job + candidate info (useful for recruiter side)
+    return await Application.find({ job: jobId })
+      .populate('job', 'title companyName location jobType')     // job details
+      .populate('candidate', 'name email');                      // candidate name & email
   }
 
   async updateStatus(
@@ -30,6 +38,6 @@ export class ApplicationRepository implements IApplicationRepository {
       id,
       { status, notes },
       { new: true },
-    );
+    ).populate('job', 'title companyName location jobType');     
   }
 }
