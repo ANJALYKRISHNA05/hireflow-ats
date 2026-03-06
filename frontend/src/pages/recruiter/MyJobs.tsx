@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../api/api";
 import toast from "react-hot-toast";
-import { Briefcase, Users, Calendar, MapPin } from "lucide-react";
+import { Briefcase, Users, Calendar, MapPin, Edit, Trash2 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
 interface Job {
@@ -39,6 +39,60 @@ export default function MyJobs() {
 
     fetchMyJobs();
   }, []);
+
+  const handleDeleteJob = (jobId: string, jobTitle: string) => {
+    toast(
+      (t) => (
+        <div className="flex flex-col gap-3 w-80">
+          <p className="text-slate-800 font-medium">
+            Delete "{jobTitle}"?
+          </p>
+       
+          <div className="flex gap-3 mt-2">
+            <button
+              onClick={() => {
+                toast.dismiss(t.id);
+                performDelete(jobId);
+              }}
+              className="flex-1 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition font-medium"
+            >
+              Yes, Delete
+            </button>
+            <button
+              onClick={() => toast.dismiss(t.id)}
+              className="flex-1 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-lg transition font-medium"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      ),
+      {
+        duration: Infinity, 
+        position: "top-center",
+        style: {
+          background: "white",
+          border: "1px solid #e2e8f0",
+          borderRadius: "12px",
+          padding: "16px",
+          boxShadow: "0 10px 25px rgba(0,0,0,0.1)",
+        },
+      }
+    );
+  };
+
+  const performDelete = async (jobId: string) => {
+    try {
+      await api.delete(`/jobs/${jobId}`);
+      toast.success("Job deleted successfully");
+
+      // Optimistic UI: remove from list immediately
+      setJobs((prev) => prev.filter((job) => job._id !== jobId));
+    } catch (err: any) {
+      const msg = err.response?.data?.message || "Failed to delete job";
+      toast.error(msg);
+    }
+  };
 
   if (loading) {
     return (
@@ -129,23 +183,46 @@ export default function MyJobs() {
                   </div>
 
                   <div className="flex items-center gap-2 text-sm">
-                    <span className={`px-3 py-1 rounded-full font-medium ${
-                      job.status === "open" ? "bg-green-100 text-green-700" :
-                      job.status === "closed" ? "bg-red-100 text-red-700" :
-                      "bg-amber-100 text-amber-700"
-                    }`}>
+                    <span
+                      className={`px-3 py-1 rounded-full font-medium ${
+                        job.status === "open"
+                          ? "bg-green-100 text-green-700"
+                          : job.status === "closed"
+                          ? "bg-red-100 text-red-700"
+                          : "bg-amber-100 text-amber-700"
+                      }`}
+                    >
                       {job.status.charAt(0).toUpperCase() + job.status.slice(1)}
                     </span>
                   </div>
                 </div>
 
                 <div className="px-6 py-5 border-t border-slate-100 bg-slate-50 flex gap-3">
+                  {/* Edit Button */}
+                  <button
+                    onClick={() => navigate(`/edit-job/${job._id}`)}
+                    className="flex-1 py-3 bg-amber-600 hover:bg-amber-700 text-white rounded-xl transition flex items-center justify-center gap-2 shadow-sm"
+                  >
+                    <Edit size={18} />
+                    Edit
+                  </button>
+
+                  {/* Delete Button */}
+                  <button
+                    onClick={() => handleDeleteJob(job._id, job.title)}
+                    className="flex-1 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl transition flex items-center justify-center gap-2 shadow-sm"
+                  >
+                    <Trash2 size={18} />
+                    Delete
+                  </button>
+
+                  {/* View Applicants */}
                   <button
                     onClick={() => navigate(`/jobs/${job._id}/applicants`)}
-                    className="flex-1 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl transition flex items-center justify-center gap-2"
+                    className="flex-1 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl transition flex items-center justify-center gap-2 shadow-sm"
                   >
                     <Users size={18} />
-                    View Applicants
+                    Applicants
                   </button>
                 </div>
               </div>

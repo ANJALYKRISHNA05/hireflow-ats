@@ -15,7 +15,8 @@ import ApplyJob from "./pages/ApplyJob";
 import PostJob from "./pages/recruiter/PostJob";
 import MyJobs from "./pages/recruiter/MyJobs";
 import JobApplicants from "./pages/recruiter/JobApplicants";
-import MyApplications from "./pages/MyApplications";        
+import MyApplications from "./pages/MyApplications";  
+import EditJob from "./pages/recruiter/EditJob";      
 export default function App() {
   return (
     <BrowserRouter>
@@ -99,6 +100,15 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+
+        <Route
+  path="/edit-job/:id"
+  element={
+    <ProtectedRoute>
+      <EditJob />
+    </ProtectedRoute>
+  }
+/>
         <Route
           path="/post-job"
           element={
