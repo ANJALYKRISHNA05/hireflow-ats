@@ -71,20 +71,17 @@ export class JobService {
     return updatedJob;
   }
 
-  async deleteJob(
-    userId: string,
-    userRole: UserRole,
-    jobId: string,
-  ): Promise<void> {
-    const job = await this.jobRepository.findById(jobId);
-    if (!job) {
-      throw new Error(Messages.RESOURCE_NOT_FOUND);
-    }
+  async deleteJob(userId: string, userRole: UserRole, jobId: string): Promise<void> {
+  const job = await this.jobRepository.findById(jobId);
+  if (!job) throw new Error(Messages.RESOURCE_NOT_FOUND);
 
-    if (job.postedBy.toString() !== userId && userRole !== UserRole.ADMIN) {
-      throw new Error(Messages.FORBIDDEN);
-    }
-
-    await this.jobRepository.delete(jobId);
+  if (job.postedBy.toString() !== userId && userRole !== UserRole.ADMIN) {
+    throw new Error(Messages.FORBIDDEN);
   }
+
+  // NEW: Delete all applications for this job
+  await Application.deleteMany({ job: jobId });
+
+  await this.jobRepository.delete(jobId);
+}
 }

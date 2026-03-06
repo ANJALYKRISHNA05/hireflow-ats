@@ -45,7 +45,7 @@ const applicationSchema = new Schema<IApplication>(
     },
   },
   {
-    timestamps: true,
+    timestamps: { createdAt: "appliedAt", updatedAt: true },
   },
 );
 

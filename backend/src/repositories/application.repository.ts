@@ -15,12 +15,14 @@ export class ApplicationRepository implements IApplicationRepository {
   }
 
   async findByCandidate(userId: string): Promise<IApplication[]> {
-    // ────────────────────────────────────────────────
-    // THIS IS THE MOST IMPORTANT CHANGE
-    // ────────────────────────────────────────────────
+   
     return await Application.find({ candidate: userId })
       .populate('job', 'title companyName location jobType');   // ← Add this line!
   }
+
+  async delete(id: string): Promise<void> {
+  await Application.findByIdAndDelete(id);
+}
 
   async findByJob(jobId: string): Promise<IApplication[]> {
     // Also populate job + candidate info (useful for recruiter side)

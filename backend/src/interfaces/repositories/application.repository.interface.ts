@@ -11,4 +11,5 @@ export interface IApplicationRepository {
     status: ApplicationStatus,
     notes?: string,
   ): Promise<IApplication | null>;
+  delete(id: string): Promise<void>;
 }

@@ -5,8 +5,8 @@ import { useSelector } from "react-redux";
 import type { RootState } from "../store";
 import api from "../api/api";
 import toast from "react-hot-toast";
-import { FileText, Briefcase, MapPin, Calendar, Clock, AlertCircle } from "lucide-react";
-import { formatDistanceToNow, isValid } from "date-fns";  // ← added isValid import
+import { FileText, Briefcase, MapPin, Calendar, Clock, AlertCircle, Trash2 } from "lucide-react";
+import { formatDistanceToNow, isValid } from "date-fns";
 
 interface Application {
   _id: string;
@@ -16,7 +16,7 @@ interface Application {
     companyName: string;
     location: string;
     jobType: string;
-  };
+  } | null;  // ← Allow null here
   status: "applied" | "shortlisted" | "interviewed" | "rejected" | "hired";
   resumeUrl: string;
   coverLetterUrl?: string;
@@ -33,13 +33,10 @@ export default function MyApplications() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Helper to safely format relative time
   const formatSafeDistance = (dateStr?: string | null, fallback = "unknown date") => {
     if (!dateStr) return fallback;
-
     const date = new Date(dateStr);
     if (!isValid(date)) return fallback;
-
     try {
       return formatDistanceToNow(date, { addSuffix: true });
     } catch {
@@ -72,7 +69,7 @@ export default function MyApplications() {
   }, [isAuthenticated, navigate]);
 
   const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
+    switch (status?.toLowerCase() || "") {
       case "applied":     return "bg-blue-100 text-blue-800";
       case "shortlisted": return "bg-purple-100 text-purple-700";
       case "interviewed": return "bg-green-100 text-green-800";
@@ -80,6 +77,55 @@ export default function MyApplications() {
       case "hired":       return "bg-emerald-100 text-emerald-800";
       default:            return "bg-gray-100 text-gray-800";
     }
+  };
+
+  const handleWithdraw = (appId: string, jobTitle: string) => {
+    toast(
+      (t) => (
+        <div className="flex flex-col gap-3 w-80">
+          <p className="text-slate-800 font-medium">
+            Withdraw application for "{jobTitle}"?
+          </p>
+          <p className="text-sm text-slate-600">
+            This cannot be undone. The recruiter will no longer see your application.
+          </p>
+          <div className="flex gap-3 mt-2">
+            <button
+              onClick={async () => {
+                toast.dismiss(t.id);
+                try {
+                  await api.delete(`/applications/${appId}`);
+                  toast.success("Application withdrawn successfully");
+                  setApplications((prev) => prev.filter((app) => app._id !== appId));
+                } catch (err: any) {
+                  toast.error(err.response?.data?.message || "Failed to withdraw application");
+                }
+              }}
+              className="flex-1 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition font-medium"
+            >
+              Yes, Withdraw
+            </button>
+            <button
+              onClick={() => toast.dismiss(t.id)}
+              className="flex-1 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-lg transition font-medium"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      ),
+      {
+        duration: Infinity,
+        position: "top-center",
+        style: {
+          background: "white",
+          border: "1px solid #e2e8f0",
+          borderRadius: "12px",
+          padding: "16px",
+          boxShadow: "0 10px 25px rgba(0,0,0,0.1)",
+        },
+      }
+    );
   };
 
   if (loading) {
@@ -114,7 +160,6 @@ export default function MyApplications() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-10 px-4 md:px-6">
       <div className="container mx-auto max-w-5xl">
-        {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-4">
           <div>
             <h1 className="text-3xl md:text-4xl font-bold text-slate-900">My Applications</h1>
@@ -149,95 +194,102 @@ export default function MyApplications() {
           </div>
         ) : (
           <div className="space-y-6">
-            {applications.map((app) => (
-              <div
-                key={app._id}
-                className="bg-white rounded-2xl shadow-md border border-slate-200 p-6 hover:shadow-lg transition-all"
-              >
-                <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
-                  {/* Left - Job Info */}
-                  <div className="flex-1">
-                    <div className="flex items-start gap-4 mb-4">
-                      <div className="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-xl flex-shrink-0">
-                        {app.job.companyName?.[0]?.toUpperCase() || "?"}
-                      </div>
-                      <div>
-                        <h3 className="text-xl font-semibold text-slate-900 line-clamp-2">
-                          {app.job.title || "Untitled Position"}
-                        </h3>
-                        <p className="text-indigo-600 font-medium mt-1">
-                          {app.job.companyName || "Company not specified"}
-                        </p>
-                      </div>
-                    </div>
+            {applications.map((app) => {
+              const job = app.job || {}; // safe fallback to empty object
 
-                    <div className="flex flex-wrap gap-4 text-sm text-slate-600 mb-4">
-                      <div className="flex items-center gap-2">
-                        <MapPin size={16} />
-                        {app.job.location || "Not specified"}
+              return (
+                <div
+                  key={app._id}
+                  className="bg-white rounded-2xl shadow-md border border-slate-200 p-6 hover:shadow-lg transition-all"
+                >
+                  <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
+                    <div className="flex-1">
+                      <div className="flex items-start gap-4 mb-4">
+                        <div className="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-xl flex-shrink-0">
+                          {job.companyName?.[0]?.toUpperCase() || "?"}
+                        </div>
+                        <div>
+                          <h3 className="text-xl font-semibold text-slate-900 line-clamp-2">
+                            {job.title || "Untitled Position"}
+                          </h3>
+                          <p className="text-indigo-600 font-medium mt-1">
+                            {job.companyName || "Company not specified"}
+                          </p>
+                        </div>
                       </div>
 
-                      <div className="flex items-center gap-2">
-                        <Calendar size={16} />
-                        {formatSafeDistance(app.appliedAt, "Applied date unavailable")}
+                      <div className="flex flex-wrap gap-4 text-sm text-slate-600 mb-4">
+                        <div className="flex items-center gap-2">
+                          <MapPin size={16} />
+                          {job.location || "Not specified"}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Calendar size={16} />
+                          {formatSafeDistance(app.appliedAt, "Applied date unavailable")}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Clock size={16} />
+                          {formatSafeDistance(app.updatedAt, "Update date unavailable")}
+                        </div>
                       </div>
 
-                      <div className="flex items-center gap-2">
-                        <Clock size={16} />
-                        {formatSafeDistance(app.updatedAt, "Update date unavailable")}
-                      </div>
-                    </div>
-
-                    {/* Documents */}
-                    <div className="flex flex-wrap gap-3 mb-4">
-                      <a
-                        href={app.resumeUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-700 rounded-lg hover:bg-indigo-100 transition"
-                      >
-                        <FileText size={16} />
-                        View Resume
-                      </a>
-
-                      {app.coverLetterUrl && (
+                      <div className="flex flex-wrap gap-3 mb-4">
                         <a
-                          href={app.coverLetterUrl}
+                          href={app.resumeUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-2 px-4 py-2 bg-purple-50 text-purple-700 rounded-lg hover:bg-purple-100 transition"
+                          className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-700 rounded-lg hover:bg-indigo-100 transition"
                         >
                           <FileText size={16} />
-                          View Cover Letter
+                          View Resume
                         </a>
+
+                        {app.coverLetterUrl && (
+                          <a
+                            href={app.coverLetterUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-2 px-4 py-2 bg-purple-50 text-purple-700 rounded-lg hover:bg-purple-100 transition"
+                          >
+                            <FileText size={16} />
+                            View Cover Letter
+                          </a>
+                        )}
+                      </div>
+
+                      {app.notes && (
+                        <div className="bg-amber-50 p-4 rounded-lg border border-amber-100">
+                          <p className="text-sm text-amber-800">
+                            <strong>Recruiter Note:</strong> {app.notes}
+                          </p>
+                        </div>
                       )}
                     </div>
 
-                    {/* Recruiter notes */}
-                    {app.notes && (
-                      <div className="bg-amber-50 p-4 rounded-lg border border-amber-100">
-                        <p className="text-sm text-amber-800">
-                          <strong>Recruiter Note:</strong> {app.notes}
-                        </p>
-                      </div>
-                    )}
-                  </div>
+                    <div className="min-w-[180px] md:text-right flex flex-col items-end gap-3">
+                      <span
+                        className={`inline-block px-4 py-2 rounded-full font-medium text-sm capitalize ${getStatusColor(app.status)}`}
+                      >
+                        {app.status || "Unknown"}
+                      </span>
 
-                  {/* Right - Status */}
-                  <div className="min-w-[180px] md:text-right">
-                    <span
-                      className={`inline-block px-4 py-2 rounded-full font-medium text-sm capitalize ${getStatusColor(app.status)}`}
-                    >
-                      {app.status}
-                    </span>
+                      {app.status === "applied" && (
+                        <button
+                          onClick={() => handleWithdraw(app._id, job.title || "this job")}
+                          className="mt-2 px-4 py-2 bg-red-50 hover:bg-red-100 text-red-700 rounded-lg transition flex items-center gap-2 text-sm font-medium"
+                        >
+                          <Trash2 size={16} />
+                          Withdraw
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
 
-        {/* Back to Dashboard */}
         <div className="mt-10 text-center">
           <button
             onClick={() => navigate("/candidate/dashboard")}

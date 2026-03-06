@@ -4,6 +4,7 @@ import {
   getMyApplications,
   getApplicationsForJob,
   updateApplicationStatus,
+  withdrawApplication,
 } from "../controllers/application.controller";
 import { authenticate } from "../middlewares/auth.middleware";
 import { authorize } from "../middlewares/role.middleware";
@@ -39,6 +40,13 @@ router.put(
   authenticate,
   authorize(UserRole.RECRUITER),
   updateApplicationStatus,
+);
+
+router.delete(
+  "/:id",
+  authenticate,
+  authorize(UserRole.CANDIDATE), 
+  withdrawApplication
 );
 
 export default router;

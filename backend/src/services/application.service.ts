@@ -49,6 +49,39 @@ export class ApplicationService {
     });
   }
 
+
+
+
+
+  // ... existing code ...
+
+async withdrawApplication(
+  userId: string,
+  role: UserRole,
+  applicationId: string
+): Promise<void> {
+  if (role !== UserRole.CANDIDATE) {
+    throw new Error(Messages.FORBIDDEN);
+  }
+
+  const application = await this.applicationRepository.findById(applicationId);
+
+  if (!application) {
+    throw new Error(Messages.RESOURCE_NOT_FOUND);
+  }
+
+  if (application.candidate.toString() !== userId) {
+    throw new Error(Messages.FORBIDDEN); // only owner can withdraw
+  }
+
+
+if (application.status !== ApplicationStatus.APPLIED) {
+     throw new Error("Cannot withdraw application after it has been processed");
+   }
+
+  await this.applicationRepository.delete(applicationId);
+}
+
   async getMyApplications(candidateId: string): Promise<IApplication[]> {
     return this.applicationRepository.findByCandidate(candidateId);
   }
