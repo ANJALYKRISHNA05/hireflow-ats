@@ -1,36 +1,42 @@
-import mongoose, { Schema, Document } from 'mongoose';
-import { UserRole } from '../types/roles';
+import mongoose, { Schema, Document } from "mongoose";
+import { UserRole } from "../types/roles";
 
 export interface IUser extends Document {
   name: string;
   email: string;
-  password: string;  
+  password: string;
   role: UserRole;
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
+  profilePicUrl: string | null;
+  bio?: string;
+  phone?: string;
+  location?: string;
+  resumeUrl?: string;
+  companyName?: string;
 }
 
 const userSchema = new Schema<IUser>(
   {
     name: {
       type: String,
-      required: [true, 'Name is required'],
+      required: [true, "Name is required"],
       trim: true,
-      minlength: [2, 'Name must be at least 2 characters'],
+      minlength: [2, "Name must be at least 2 characters"],
     },
     email: {
       type: String,
-      required: [true, 'Email is required'],
+      required: [true, "Email is required"],
       unique: true,
       lowercase: true,
       trim: true,
     },
     password: {
       type: String,
-      required: [true, 'Password is required'],
-      minlength: [6, 'Password must be at least 6 characters'],
-      select: false, 
+      required: [true, "Password is required"],
+      minlength: [6, "Password must be at least 6 characters"],
+      select: false,
     },
     role: {
       type: String,
@@ -41,13 +47,19 @@ const userSchema = new Schema<IUser>(
       type: Boolean,
       default: true,
     },
+    profilePicUrl: {
+      type: String,
+      default: null,
+    },
+    bio: { type: String, trim: true, maxlength: 500 },
+    phone: { type: String, trim: true },
+    location: { type: String, trim: true },
+    resumeUrl: { type: String },
+    companyName: { type: String, trim: true },
   },
   {
     timestamps: true,
-  }
+  },
 );
 
-
-userSchema.index({ email: 1 });
-
-export const User = mongoose.model<IUser>('User', userSchema);
+export const User = mongoose.model<IUser>("User", userSchema);

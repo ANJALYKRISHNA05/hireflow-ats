@@ -1,8 +1,21 @@
-import {Router} from 'express'
-import {register,login,logout} from '../controllers/auth.controller'
-import { authenticate } from '../middlewares/auth.middleware';
-const router=Router()
-router.post('/register',register)
-router.post('/login',login)
-router.post('/logout', authenticate, logout);
-export default router
+import { Router } from "express";
+import {
+  login,
+  logout,
+  refresh,
+  requestRegisterOtp,
+  register,
+  requestPasswordResetOtp,
+  resetPassword,
+} from "../controllers/auth.controller";
+import { authenticate } from "../middlewares/auth.middleware";
+const router = Router();
+
+router.post("/login", login);
+router.post("/logout", authenticate, logout);
+router.post("/refresh", refresh);
+router.post("/register/request-otp", requestRegisterOtp);
+router.post("/register", register);
+router.post("/forgot-password/otp", requestPasswordResetOtp);
+router.post("/reset-password", resetPassword);
+export default router;
