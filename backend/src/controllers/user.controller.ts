@@ -32,13 +32,12 @@ export const getCurrentUser = async (req: Request, res: Response) => {
   }
 };
 
-
 export const updateCurrentUser = async (req: Request, res: Response) => {
   try {
     const userId = req.user.id;
-    const updateData = req.body; 
+    const updateData = req.body;
 
-    const userService = container.get<UserService>('UserService');
+    const userService = container.get<UserService>("UserService");
     const updatedUser = await userService.updateCurrentUser(userId, updateData);
 
     return res.status(StatusCodes.OK).json({

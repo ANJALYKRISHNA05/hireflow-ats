@@ -5,7 +5,16 @@ import { useSelector } from "react-redux";
 import type { RootState } from "../store";
 import api from "../api/api";
 import toast from "react-hot-toast";
-import { FileText, Briefcase, MapPin, Calendar, Clock, AlertCircle, Trash2 } from "lucide-react";
+import { 
+  FileText, 
+  Briefcase, 
+  MapPin, 
+  Calendar, 
+  Clock, 
+  AlertCircle, 
+  Trash2, 
+  ArrowLeft   // ← ADD THIS HERE
+} from "lucide-react";
 import { formatDistanceToNow, isValid } from "date-fns";
 
 interface Application {
@@ -16,7 +25,7 @@ interface Application {
     companyName: string;
     location: string;
     jobType: string;
-  } | null;  // ← Allow null here
+  } | null;
   status: "applied" | "shortlisted" | "interviewed" | "rejected" | "hired";
   resumeUrl: string;
   coverLetterUrl?: string;
@@ -160,13 +169,24 @@ export default function MyApplications() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-10 px-4 md:px-6">
       <div className="container mx-auto max-w-5xl">
+        {/* Header with Back Button */}
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-4">
-          <div>
-            <h1 className="text-3xl md:text-4xl font-bold text-slate-900">My Applications</h1>
-            <p className="mt-2 text-slate-600">
-              Track the status of all your job applications
-            </p>
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => navigate("/candidate/dashboard")}
+              className="p-3 rounded-full bg-white shadow-md hover:bg-slate-50 transition text-slate-700 hover:text-indigo-700"
+              title="Back to Dashboard"
+            >
+              <ArrowLeft size={24} />
+            </button>
+            <div>
+              <h1 className="text-3xl md:text-4xl font-bold text-slate-900">My Applications</h1>
+              <p className="mt-1 text-slate-600">
+                Track the status of all your job applications
+              </p>
+            </div>
           </div>
+
           <button
             onClick={() => navigate("/jobs")}
             className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl transition shadow-md flex items-center gap-2"
@@ -195,7 +215,7 @@ export default function MyApplications() {
         ) : (
           <div className="space-y-6">
             {applications.map((app) => {
-              const job = app.job || {}; // safe fallback to empty object
+              const job = app.job || {}; // safe fallback
 
               return (
                 <div
@@ -290,14 +310,7 @@ export default function MyApplications() {
           </div>
         )}
 
-        <div className="mt-10 text-center">
-          <button
-            onClick={() => navigate("/candidate/dashboard")}
-            className="text-slate-600 hover:text-indigo-600 transition flex items-center gap-2 mx-auto"
-          >
-            ← Back to Dashboard
-          </button>
-        </div>
+       
       </div>
     </div>
   );

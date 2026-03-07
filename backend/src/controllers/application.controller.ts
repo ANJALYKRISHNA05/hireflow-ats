@@ -123,14 +123,11 @@ export const updateApplicationStatus = async (req: Request, res: Response) => {
   }
 };
 
-
-
 export const withdrawApplication = async (req: Request, res: Response) => {
   try {
     const user = req.user;
-    const { id } = req.params; // application ID
+    const { id } = req.params;
 
-    // We pass user.id and role so service can check ownership
     await applicationService.withdrawApplication(user.id, user.role, id);
 
     return res.status(StatusCodes.OK).json({

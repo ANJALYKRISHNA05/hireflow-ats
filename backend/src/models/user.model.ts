@@ -9,7 +9,12 @@ export interface IUser extends Document {
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
-   profilePicUrl: string | null; 
+  profilePicUrl: string | null; 
+  bio?: string;                    
+  phone?: string;                  
+  location?: string;               
+  resumeUrl?: string;              
+  companyName?: string;
 }
 
 const userSchema = new Schema<IUser>(
