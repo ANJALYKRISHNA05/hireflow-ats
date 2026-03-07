@@ -9,11 +9,11 @@ export interface IUser extends Document {
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
-  profilePicUrl: string | null; 
-  bio?: string;                    
-  phone?: string;                  
-  location?: string;               
-  resumeUrl?: string;              
+  profilePicUrl: string | null;
+  bio?: string;
+  phone?: string;
+  location?: string;
+  resumeUrl?: string;
   companyName?: string;
 }
 
@@ -51,6 +51,11 @@ const userSchema = new Schema<IUser>(
       type: String,
       default: null,
     },
+    bio: { type: String, trim: true, maxlength: 500 },
+    phone: { type: String, trim: true },
+    location: { type: String, trim: true },
+    resumeUrl: { type: String },
+    companyName: { type: String, trim: true },
   },
   {
     timestamps: true,

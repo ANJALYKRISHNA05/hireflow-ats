@@ -25,11 +25,14 @@ async updateCurrentUser(userId: string, updateData: Partial<IUser>) {
   const user = await this.userRepository.findById(userId);
   if (!user) throw new Error(Messages.USER_NOT_FOUND);
 
-
   const allowedUpdates = {
     name: updateData.name,
     profilePicUrl: updateData.profilePicUrl,
-
+    bio: updateData.bio,
+    phone: updateData.phone,
+    location: updateData.location,
+    resumeUrl: updateData.resumeUrl,
+    companyName: updateData.companyName,
   };
 
   const updated = await this.userRepository.update(userId, allowedUpdates);
